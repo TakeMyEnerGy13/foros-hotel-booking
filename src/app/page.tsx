@@ -1,12 +1,10 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
-import { coastPhotos } from '@/lib/hotel-photos'
-import RoomsNav from '@/components/RoomsNav'
+import HomeHero from '@/components/HomeHero'
 import HotelFooter from '@/components/HotelFooter'
 import WeatherWidget from '@/components/WeatherWidget'
-import Gallery, { PhotoStage } from '@/components/Gallery'
-import StaySearch from '@/components/StaySearch'
+import Gallery from '@/components/Gallery'
 import RoomTile from '@/components/RoomTile'
 
 export default async function Home() {
@@ -15,15 +13,8 @@ export default async function Home() {
   const rooms = await prisma.room.findMany({ orderBy: { id: 'asc' }, take: 4 })
   return (
     <div id="top" className="hotel">
-      <RoomsNav locale={locale} />
       <main>
-        <PhotoStage
-          photos={coastPhotos.slice(0, 4).map((p) => ({ src: p.src, caption: p[locale] }))}
-          title={ru ? 'Берег Радости' : 'Shore of Joy'}
-          label={ru ? 'Гостиница в Форосе' : 'A hotel in Foros'}
-          locale={locale}
-        />
-        <StaySearch locale={locale} />
+        <HomeHero locale={locale} />
         <section className="editorial">
           <div className="section-heading">
             <div>
