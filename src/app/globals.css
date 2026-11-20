@@ -1,0 +1,29 @@
+@import "tailwindcss" source("../");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  letter-spacing: 0 !important;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  color: #1c1917;
+  background-color: #fafaf9;
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+}
+
+.font-sans {
+  font-family: 'Inter', sans-serif !important;
+}

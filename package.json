@@ -1,0 +1,39 @@
+{
+  "name": "hotel-booking",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test:bookings": "node --env-file=.env.local --test tests/booking-flow.test.mjs",
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@tailwindcss/postcss": "^4.2.2",
+    "autoprefixer": "^10.4.27",
+    "date-fns": "^4.1.0",
+    "next": "^16.2.1",
+    "next-intl": "^4.8.3",
+    "postcss": "^8.5.8",
+    "react": "19.2.3",
+    "react-day-picker": "^9.13.2",
+    "react-dom": "19.2.3",
+    "react-hook-form": "^7.71.2",
+    "tailwindcss": "^4.2.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.22.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "5.9.3"
+  }
+}
