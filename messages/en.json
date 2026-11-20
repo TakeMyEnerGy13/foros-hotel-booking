@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "home": "Home",
+    "rooms": "Rooms"
+  },
+  "home": {
+    "title": "Welcome",
+    "subtitle": "Luxury stay in the heart of the city",
+    "cta": "Choose a room",
+    "whyUs": "Why choose us",
+    "service": "Premium service",
+    "serviceDesc": "Personal approach to every guest",
+    "location": "City center",
+    "locationDesc": "Walking distance from main attractions",
+    "breakfast": "Breakfast included",
+    "breakfastDesc": "Buffet breakfast every morning from 7 to 11"
+  },
+  "rooms": {
+    "title": "Our rooms",
+    "subtitle": "Choose the room that suits you",
+    "perNight": "₽/night",
+    "guests": "Up to {capacity} guests",
+    "details": "View details"
+  },
+  "booking": {
+    "title": "Book a room",
+    "checkIn": "Check-in date",
+    "checkOut": "Check-out date",
+    "name": "Your name",
+    "email": "Email",
+    "phone": "Phone",
+    "submit": "Book now",
+    "loading": "Booking...",
+    "success": "Room booked!",
+    "bookedDates": "Booked dates",
+    "nights": "nights",
+    "total": "Total"
+  },
+  "footer": {
+    "rights": "© 2025 Grand Hotel. All rights reserved."
+  }
+}

@@ -1,0 +1,81 @@
+import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
+import test from 'node:test'
+import { PrismaClient } from '@prisma/client'
+
+test('local hotel booking flow', async t => {
+  const site = new URL(process.env.TEST_SITE_URL || 'http://127.0.0.1:3000')
+  const database = new URL(process.env.DATABASE_URL)
+  const loopback = ['127.0.0.1', 'localhost', '[::1]']
+  assert.ok(loopback.includes(site.hostname) && loopback.includes(database.hostname), 'Use local test services')
+  assert.match(database.pathname, /(?:test|preview)$/)
+  const db = new PrismaClient()
+  const label = 'Test room ' + randomUUID()
+  const year = new Date().getUTCFullYear() + 1
+  const date = day => year + '-04-' + String(day).padStart(2, '0')
+  function request(path, method = 'GET', body, cookie) {
+    return fetch(new URL(path, site), {
+      method, redirect: 'manual',
+      headers: { 'Content-Type': 'application/json', ...(cookie && { Cookie: cookie }) },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
+  }
+
+  t.after(() => db.$disconnect())
+  const room = await db.room.create({ data: {
+    name: label, nameEn: label, description: label, descriptionEn: label,
+    price: 5000, capacity: 2, images: [], imageUrl: '/logo.png',
+  } })
+  try {
+    const roomUrl = '/rooms/' + room.id
+    assert.ok((await (await request(roomUrl)).text()).includes(label), 'Site must use this test database')
+    const guest = { roomId: room.id, guestName: label, guestPhone: '+12025550123', guestEmail: 'guest@example.invalid' }
+    const stay = (from, to) => ({ ...guest, checkIn: date(from), checkOut: date(to) })
+    const admin = '/api/admin/bookings'
+    const login = await request('/api/admin/login', 'POST', { password: process.env.ADMIN_PASSWORD })
+    assert.equal(login.status, 200, 'Configure the local admin password')
+    const cookie = login.headers.get('set-cookie').split(';')[0]
+    let bookingId
+
+    await t.test('guest data and changes require an admin session', async () => {
+      assert.equal((await request('/api/bookings')).status, 405)
+      assert.equal((await request(admin)).status, 401)
+      assert.equal((await request(admin, 'POST', stay(1, 2))).status, 401)
+      for (const method of ['PUT', 'DELETE']) {
+        assert.equal((await request(admin + '/0', method)).status, 401)
+      }
+      assert.equal((await request(admin, 'GET', undefined, cookie)).status, 200)
+    })
+    await t.test('one concurrent request wins; a new guest can arrive on checkout day', async () => {
+      const create = () => request('/api/bookings', 'POST', stay(10, 14))
+      const results = await Promise.all([create(), create()])
+      assert.deepEqual(results.map(r => r.status).sort(), [200, 409])
+      const booked = await results.find(r => r.ok).json()
+      assert.equal(booked.status, 'pending')
+      bookingId = booked.id
+      assert.equal((await request('/api/bookings', 'POST', stay(14, 16))).status, 200)
+    })
+    await t.test('admin edits check availability and cancelled nights become available', async () => {
+      const path = admin + '/' + bookingId
+      assert.equal((await request(admin, 'POST', stay(11, 13), cookie)).status, 409)
+      assert.equal((await request(path, 'PUT', stay(13, 15), cookie)).status, 409)
+      assert.equal((await request(path, 'PUT', { ...stay(10, 14), status: 'confirmed' }, cookie)).status, 200)
+      const searchUrl = roomUrl + '?checkIn=' + date(10) + '&checkOut=' + date(14)
+      assert.ok(!(await (await request(searchUrl)).text()).includes('Забронировать ·'))
+      assert.equal((await request(path, 'PUT', { ...stay(10, 14), status: 'cancelled' }, cookie)).status, 200)
+      assert.ok((await (await request(searchUrl)).text()).includes('Забронировать ·'))
+      assert.equal((await request('/api/bookings', 'POST', stay(10, 14))).status, 200)
+      assert.equal((await request(path, 'PUT', { ...stay(10, 14), status: 'confirmed' }, cookie)).status, 409)
+    })
+    await t.test('rejects reversed, nonexistent and past dates', async () => {
+      for (const [checkIn, checkOut] of [[date(23), date(22)], [year + '-02-30', date(4)], ['2000-01-01', '2000-01-02']]) {
+        assert.equal((await request('/api/bookings', 'POST', { ...guest, checkIn, checkOut })).status, 400)
+      }
+    })
+  } finally {
+    await db.$transaction([
+      db.booking.deleteMany({ where: { roomId: room.id, guestName: label } }),
+      db.room.delete({ where: { id: room.id } }),
+    ])
+  }
+})
