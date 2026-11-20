@@ -52,13 +52,7 @@ export default async function RoomPage({
     <div id="top" className="hotel">
       <RoomsNav locale={locale} booking="#booking" />
       <main>
-        <PhotoStage
-          detail
-          photos={photos}
-          title={name}
-          label={ru ? 'Проживание · Форос' : 'Accommodation · Foros'}
-          locale={locale}
-        />
+        <PhotoStage photos={photos} title={name} locale={locale} />
         <div className="room-spread editorial">
           <section className="room-story">
             <Link href="/rooms" className="label">

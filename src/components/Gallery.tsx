@@ -1,37 +1,43 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { coastPhotos } from '@/lib/hotel-photos'
 
 type Photo = { src: string; caption: string }
 
-export function PhotoStage({
-  photos,
-  title,
-  label,
-  locale,
-  detail = false,
-}: {
-  photos: Photo[]
-  title: string
-  label: string
-  locale: string
-  detail?: boolean
-}) {
+export function PhotoStage({ photos, title, locale }: { photos: Photo[]; title: string; locale: string }) {
   const ru = locale !== 'en'
   const [current, setCurrent] = useState(0)
+  const stage = useRef<HTMLElement>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const active = photos[current] ?? photos[0]
-  const move = (n: number) => setCurrent((i) => (i + n + photos.length) % photos.length)
+  const move = useCallback((step: number) => {
+    setCurrent((index) => (index + step + photos.length) % photos.length)
+  }, [photos.length])
+
+  useEffect(() => {
+    if (photos.length < 2) return
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+      const target = event.target
+      const frame = stage.current
+      if (!frame || !(target instanceof Node)) return
+      if (!dialog.current?.contains(target) && !frame.contains(target)) {
+        if (target !== document.body && target !== document.documentElement) return
+        const bounds = frame.getBoundingClientRect()
+        if (bounds.bottom <= 0 || bounds.top >= window.innerHeight) return
+      }
+      event.preventDefault()
+      move(event.key === 'ArrowRight' ? 1 : -1)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [move, photos.length])
+
   return (
     <>
-      <section className={'photo-stage' + (detail ? ' detail-stage' : '')} aria-label={title}>
-        <img
-          className="stage-photo"
-          src={active.src}
-          alt={active.caption}
-          fetchPriority="high"
-          key={active.src}
-        />
+      <section className="photo-stage" ref={stage} aria-label={title}>
+        <img className="stage-photo" src={active.src} alt={active.caption} fetchPriority="high" />
         <button
           type="button"
           className="expand-photo"
@@ -41,63 +47,66 @@ export function PhotoStage({
           ⤢
         </button>
         <div className="stage-title">
-          <p className="label">
-            <span className="label-line" />
-            {label}
-          </p>
-          <h1>
-            {detail
-              ? title
-              : title.split(' ').length === 2
-                ? title.split(' ').map((word) => <span key={word}>{word}</span>)
-                : title}
-          </h1>
+          <h1>{title}</h1>
         </div>
-        <div className="stage-thumbs" aria-label={ru ? 'Фотографии' : 'Photographs'}>
-          {photos.map((p, i) => (
+        {photos.length > 1 && (
+          <>
             <button
-              key={p.src}
               type="button"
-              aria-label={p.caption}
-              aria-pressed={i === current}
-              onClick={() => setCurrent(i)}
+              className="stage-arrow previous"
+              aria-label={ru ? 'Предыдущая фотография' : 'Previous photo'}
+              onClick={() => move(-1)}
             >
-              <img src={p.src} alt="" />
+              ←
             </button>
-          ))}
-        </div>
+            <button
+              type="button"
+              className="stage-arrow next"
+              aria-label={ru ? 'Следующая фотография' : 'Next photo'}
+              onClick={() => move(1)}
+            >
+              →
+            </button>
+            <div className="stage-thumbs" role="group" aria-label={ru ? 'Фотографии' : 'Photographs'}>
+              {photos.map((photo, index) => (
+                <button
+                  key={photo.src}
+                  type="button"
+                  aria-label={photo.caption}
+                  aria-pressed={index === current}
+                  onClick={() => setCurrent(index)}
+                >
+                  <img src={photo.src} alt="" />
+                </button>
+              ))}
+            </div>
+            <span className="sr-only" aria-live="polite">{active.caption}</span>
+          </>
+        )}
       </section>
-      <div className="photo-credit label">
-        <span aria-live="polite">
-          {String(current + 1).padStart(2, '0')} / {String(photos.length).padStart(2, '0')}{' '}
-          <span className="caption-dot">·</span> {active.caption}
-        </span>
-        <span>{ru ? 'Южный берег Крыма' : 'Southern coast of Crimea'}</span>
-      </div>
       <dialog
         className="lightbox"
+        aria-label={title}
         ref={dialog}
-        onClick={(e) => {
-          if (e.target === dialog.current) dialog.current.close()
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowRight') move(1)
-          if (e.key === 'ArrowLeft') move(-1)
+        onClick={(event) => {
+          if (event.target === dialog.current) dialog.current.close()
         }}
       >
         <button autoFocus className="pill" onClick={() => dialog.current?.close()}>
           {ru ? 'Закрыть' : 'Close'} ×
         </button>
         <img src={active.src} alt={active.caption} />
-        <div className="lightbox-nav">
-          <button aria-label={ru ? 'Назад' : 'Previous'} onClick={() => move(-1)}>
-            ←
-          </button>
-          <span>{active.caption}</span>
-          <button aria-label={ru ? 'Вперёд' : 'Next'} onClick={() => move(1)}>
-            →
-          </button>
-        </div>
+        {photos.length > 1 && (
+          <div className="lightbox-nav">
+            <button aria-label={ru ? 'Назад' : 'Previous'} onClick={() => move(-1)}>
+              ←
+            </button>
+            <span aria-live="polite">{active.caption}</span>
+            <button aria-label={ru ? 'Вперёд' : 'Next'} onClick={() => move(1)}>
+              →
+            </button>
+          </div>
+        )}
       </dialog>
     </>
   )
