@@ -770,9 +770,25 @@ a {
 }
 .footer-contact .contact-service-icon svg { display: block; width: 1.2em; height: 1.2em; }
 .contacts-popup {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(480px, calc(100% - 48px));
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 28px;
+  background: rgb(15 15 15 / 95%);
+  color: white;
+  box-shadow: 0 24px 80px rgb(0 0 0 / 60%);
+  backdrop-filter: blur(40px);
   --popup-inset: clamp(16px, 4.5vw, 32px);
   --popup-space: clamp(16px, 3vw, 24px);
   --popup-icon-column: clamp(56px, 14vw, 72px);
+}
+.contacts-popup::backdrop {
+  background: rgb(0 0 0 / 70%);
+  backdrop-filter: blur(10px);
 }
 .contacts-popup-header, .contacts-popup-body {
   padding: var(--popup-space) var(--popup-inset);

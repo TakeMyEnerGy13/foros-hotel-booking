@@ -37,6 +37,18 @@ test('local hotel booking flow', async t => {
     const cookie = login.headers.get('set-cookie').split(';')[0]
     let bookingId
 
+    await t.test('catalog handles ambiguous date links and preserves an unambiguous date', async () => {
+      for (const [duplicate, single] of [['checkIn', 'checkOut'], ['checkOut', 'checkIn']]) {
+        const query = new URLSearchParams([[duplicate, date(1)], [duplicate, date(2)], [single, date(3)]])
+        const response = await request('/rooms?' + query)
+        assert.equal(response.status, 200)
+        const html = await response.text()
+        assert.ok(html.includes('Проверьте даты. Показаны все номера.'))
+        assert.ok(html.includes(label))
+        assert.ok(html.includes('value="' + date(3) + '"'))
+      }
+    })
+
     await t.test('guest data and changes require an admin session', async () => {
       assert.equal((await request('/api/bookings')).status, 405)
       assert.equal((await request(admin)).status, 401)

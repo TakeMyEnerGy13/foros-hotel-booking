@@ -3,6 +3,15 @@ export interface Stay {
   checkOut: string
 }
 
+export type StayQuery = { checkIn?: string | string[]; checkOut?: string | string[] }
+
+export function datesFromQuery({ checkIn, checkOut }: StayQuery): Stay {
+  return {
+    checkIn: typeof checkIn === 'string' ? checkIn : '',
+    checkOut: typeof checkOut === 'string' ? checkOut : '',
+  }
+}
+
 export function calendarDay(day: Date) {
   return [String(day.getFullYear()).padStart(4, '0'), String(day.getMonth() + 1).padStart(2, '0'), String(day.getDate()).padStart(2, '0')].join('-')
 }
