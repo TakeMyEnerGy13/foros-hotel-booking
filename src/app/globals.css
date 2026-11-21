@@ -733,7 +733,7 @@ a {
   border-bottom: 1px solid rgb(255 255 255 / 8%);
 }
 .contacts-popup-header > button { flex: none; }
-.contacts-popup-body { display: grid; gap: var(--popup-space); }
+.contacts-popup-body { display: grid; gap: 12px; }
 .contacts-popup-identity, .contacts-popup-phone {
   display: grid;
   grid-template-columns: var(--popup-icon-column) minmax(0, 1fr);
@@ -753,7 +753,13 @@ a {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
-.contacts-popup .contact-services a { min-width: 0; text-align: center; }
+.contacts-popup .contact-services a { min-width: 0; gap: 6px; text-align: center; }
+.contacts-popup .contact-service-icon {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+}
+.contacts-popup .contact-service-icon svg { width: 82%; height: 82%; }
 .footer-map { min-width: 0; margin: 0; }
 .footer-map iframe {
   display: block;
