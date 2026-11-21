@@ -17,7 +17,7 @@ export default async function Home() {
         <section className="home-rooms editorial">
           <div className="section-heading">
             <h2>{ru ? 'Наши номера' : 'Our rooms'}</h2>
-            <Link className="pill" href="/rooms">
+            <Link className="all-rooms-link" href="/rooms">
               {ru ? 'Все номера' : 'All rooms'}
             </Link>
           </div>
