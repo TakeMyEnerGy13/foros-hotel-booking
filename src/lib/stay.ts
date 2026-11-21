@@ -19,6 +19,15 @@ export function isCalendarDay(value: unknown): value is string {
   return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
 
+export function maskStayDate(value: string, separator: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 8)
+  if (digits.length < 2) return digits
+  const day = digits.slice(0, 2)
+  const month = digits.slice(2, 4)
+  const year = digits.slice(4)
+  return day + separator + month + (digits.length >= 4 ? separator + year : '')
+}
+
 export function readStayDate(value: string) {
   const text = value.trim()
   if (/^\d{4}-/.test(text)) return isCalendarDay(text) ? text : ''
