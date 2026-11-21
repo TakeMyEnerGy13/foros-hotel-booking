@@ -8,6 +8,7 @@ interface Props {
   roomId: number
   locale: string
   today: string
+  initialDay: string
   initialStay?: Stay
   price: number
   bookings: Stay[]
@@ -29,12 +30,12 @@ const MONTHS_RU = [
 ]
 const DAYS_RU = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
-export default function BookingCalendar({ roomId, today, locale, price, bookings, initialStay }: Props) {
+export default function BookingCalendar({ roomId, today, locale, price, bookings, initialDay, initialStay }: Props) {
   const ru = locale !== 'en'
   const router = useRouter()
   const [refreshing, startRefresh] = useTransition()
   const [viewDate, setViewDate] = useState(() => {
-    const [year, month] = (initialStay?.checkIn ?? today).split('-').map(Number)
+    const [year, month] = initialDay.split('-').map(Number)
     return new Date(year, month - 1, 1)
   })
   const [selection, setSelection] = useState(initialStay ? { ...initialStay, anchor: initialStay.checkIn } : undefined)

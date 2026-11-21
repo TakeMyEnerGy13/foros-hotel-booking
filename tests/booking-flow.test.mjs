@@ -84,6 +84,23 @@ test('local hotel booking flow', async t => {
         assert.equal((await request('/api/bookings', 'POST', { ...guest, checkIn, checkOut })).status, 400)
       }
     })
+    await t.test('search offers the bookable part of a stay and distinguishes it from a fully occupied room', async () => {
+      const search = '/rooms?checkIn=' + date(21) + '&checkOut=' + date(29)
+      const option = roomUrl + '?checkIn=' + date(22) + '&checkOut=' + date(28)
+      for (const [from, to] of [[21, 22], [28, 29]]) {
+        assert.equal((await request('/api/bookings', 'POST', stay(from, to))).status, 200)
+      }
+      assert.equal((await request(admin, 'POST', { ...stay(24, 25), status: 'cancelled' }, cookie)).status, 200)
+      const html = await (await request(search)).text()
+      const options = html.match(/<section aria-labelledby="partial-rooms">([\s\S]*?)<\/section>/)?.[1]
+      assert.ok(options?.includes(label))
+      assert.ok(options.includes(option.replace('&', '&amp;') + '#booking'))
+      assert.ok((await (await request(option)).text()).includes('Забронировать ·'))
+      assert.equal((await request('/api/bookings', 'POST', stay(22, 28))).status, 200)
+      const occupied = await (await request(search)).text()
+      assert.ok(!occupied.includes(option.replace('&', '&amp;') + '#booking'))
+      assert.ok(occupied.match(/<h2 class="subheading">Заняты на эти даты<\/h2>([\s\S]*?)<\/section>/)?.[1].includes(label))
+    })
   } finally {
     await db.$transaction([
       db.booking.deleteMany({ where: { roomId: room.id, guestName: label } }),

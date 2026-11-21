@@ -37,8 +37,9 @@ export default async function RoomPage({
     checkOut: b.checkOut.toISOString().slice(0, 10),
   }))
   const today = hotelToday()
+  const hasUpcomingStay = validStay(checkIn, checkOut) && checkIn >= today
   const initialStay =
-    validStay(checkIn, checkOut) && checkIn >= today && !bookings.some((b) => overlaps(b, requested))
+    hasUpcomingStay && !bookings.some((b) => overlaps(b, requested))
       ? requested
       : undefined
 
@@ -90,6 +91,7 @@ export default async function RoomPage({
             roomId={room.id}
             today={today}
             locale={locale}
+            initialDay={hasUpcomingStay ? checkIn : today}
             initialStay={initialStay}
             price={room.price}
             bookings={bookings}

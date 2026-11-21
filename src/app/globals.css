@@ -930,6 +930,24 @@ a {
 .search-result {
   margin-bottom: 28px;
 }
+.stay-options-label {
+  margin: 12px 0 4px;
+  font-size: 14px;
+}
+.stay-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.stay-options a {
+  display: inline-block;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .subheading {
   font-size: 40px;
   margin: 50px 0 26px !important;

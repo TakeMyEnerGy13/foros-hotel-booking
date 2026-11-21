@@ -57,6 +57,20 @@ export function overlaps(existing: Stay, requested: Stay) {
   return existing.checkIn < requested.checkOut && existing.checkOut > requested.checkIn
 }
 
+export function freeStaysWithin(requested: Stay, bookings: Stay[]): Stay[] {
+  const occupied = bookings
+    .filter(booking => overlaps(booking, requested))
+    .sort((a, b) => a.checkIn.localeCompare(b.checkIn))
+  const free: Stay[] = []
+  let nextArrival = requested.checkIn
+  for (const booking of occupied) {
+    if (nextArrival < booking.checkIn) free.push({ checkIn: nextArrival, checkOut: booking.checkIn })
+    if (nextArrival < booking.checkOut) nextArrival = booking.checkOut
+  }
+  if (nextArrival < requested.checkOut) free.push({ checkIn: nextArrival, checkOut: requested.checkOut })
+  return free
+}
+
 export function stayForNights(anchor: string, night: string, bookings: Stay[]): Stay | undefined {
   const checkIn = anchor < night ? anchor : night
   const lastNight = anchor < night ? night : anchor
