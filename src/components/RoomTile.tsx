@@ -6,9 +6,8 @@ type Room = {
   name: string
   nameEn: string
   imageUrl: string
-  capacity: number
-  price: number
 }
+
 export default function RoomTile({
   room,
   locale,
@@ -22,28 +21,23 @@ export default function RoomTile({
 }) {
   const ru = locale !== 'en'
   const name = ru ? room.name : room.nameEn
+  const status = ru ? 'Даты заняты' : 'Dates unavailable'
   return (
-    <Link className={'room-tile' + (unavailable ? ' occupied' : '')} href={'/rooms/' + room.id + query}>
+    <Link
+      className={'room-tile' + (unavailable ? ' occupied' : '')}
+      href={'/rooms/' + room.id + query}
+      aria-label={unavailable ? name + ' · ' + status : undefined}
+    >
       <div className="tile-photo">
-        <img src={roomPhotos([room.imageUrl])[0]} alt={name} loading="lazy" />
+        <img src={roomPhotos([room.imageUrl])[0]} alt="" loading="lazy" />
+        <div className="tile-plaque-top" aria-hidden="true">
+          <span>{unavailable ? status : ru ? 'Номер' : 'Room'}</span>
+          <span className="tile-action">{ru ? 'Подробнее' : 'View room'}</span>
+        </div>
       </div>
-      <div className="tile-meta label">
-        <span>
-          {unavailable
-            ? ru
-              ? 'Даты заняты'
-              : 'Dates unavailable'
-            : ru
-              ? 'До ' + room.capacity + ' гостей'
-              : 'Up to ' + room.capacity + ' guests'}
-        </span>
-        <span>
-          {room.price.toLocaleString(ru ? 'ru-RU' : 'en-GB')} ₽ / {ru ? 'ночь' : 'night'}
-        </span>
-      </div>
-      <div className="tile-title">
-        <h3>{name}</h3>
-        <span aria-hidden="true">↗</span>
+      <div className="tile-caption">
+        <h3 className="tile-title">{name}</h3>
+        <div className="tile-plaque-name" aria-hidden="true">{name}</div>
       </div>
     </Link>
   )

@@ -371,14 +371,32 @@ a {
   gap: 20px;
 }
 .room-tile {
+  --plaque-width: min(100%, clamp(14rem, 80%, 23.25rem));
+  --plaque-offset: 101%;
+  --tile-ease: cubic-bezier(.23, 1, .32, 1);
   display: block;
   min-width: 0;
   text-decoration: none;
 }
+.room-tile:focus-visible {
+  --plaque-offset: 0%;
+}
+@media (hover: hover) and (pointer: fine) {
+  .room-tile .tile-photo img {
+    transform: scale(1.045);
+    transition: transform .6s var(--tile-ease);
+  }
+  .room-tile:hover {
+    --plaque-offset: 0%;
+  }
+  .room-tile:is(:hover, :focus-visible) .tile-photo img {
+    transform: scale(1);
+  }
+}
 .tile-photo {
-  aspect-ratio: 1/1;
+  position: relative;
+  aspect-ratio: 1;
   overflow: hidden;
-  border: 1px solid var(--ink);
 }
 .tile-photo img,
 .gallery-strip img {
@@ -386,37 +404,80 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.35s ease;
 }
-.room-tile:hover .tile-photo img {
-  transform: scale(1.025);
+.room-tile.occupied .tile-photo img {
+  opacity: .7;
 }
-.room-tile.occupied .tile-photo {
-  opacity: 0.7;
+.tile-caption {
+  display: grid;
+  overflow: hidden;
 }
-.tile-meta {
+.tile-plaque-top,
+.tile-plaque-name {
+  width: var(--plaque-width);
+  border: 1px solid var(--ink);
+  background: var(--linen);
+  transition: transform .6s var(--tile-ease);
+}
+.tile-plaque-top {
+  position: absolute;
+  bottom: 0;
+  left: 0;
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 5px 10px;
-  margin: 15px 0 8px;
-  font-size: 12px;
-  color: var(--muted);
+  min-height: 40px;
+  border-bottom: 0;
+  font-size: 13px;
+  line-height: 1.2;
+  transform: translateY(var(--plaque-offset));
+}
+.tile-plaque-top > span:first-child {
+  align-self: end;
+  padding: 13px 9px 6px;
+}
+.tile-action {
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--linen);
+  padding: 8px 12px;
+  font-weight: 500;
+}
+.tile-title,
+.tile-plaque-name {
+  grid-area: 1 / 1;
+  font-size: clamp(18px, 1.7vw, 30px);
+  font-weight: 400;
+  line-height: 1.18;
+  letter-spacing: -.045em;
+  overflow-wrap: anywhere;
 }
 .tile-title {
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-  align-items: baseline;
-  border-bottom: 1px solid var(--ink);
-  padding-bottom: 15px;
-}
-.tile-title h3 {
   margin: 0;
-  font-size: clamp(18px, 1.7vw, 30px);
-  letter-spacing: -0.045em;
-  line-height: 1.18;
-  font-weight: 400;
+  padding-top: 12px;
+  transform: translateY(calc(101% - var(--plaque-offset)));
+  transition: transform .4s var(--tile-ease);
+}
+.tile-plaque-name {
+  position: relative;
+  padding: 10px 16px 20px 9px;
+  transform: translateY(calc(0% - var(--plaque-offset)));
+  transition-delay: .09s;
+}
+.tile-plaque-top::before,
+.tile-plaque-name::before,
+.tile-plaque-name::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--ink);
+}
+.tile-plaque-top::before { top: 6px; left: 9px; }
+.tile-plaque-name::before { bottom: 6px; left: 9px; }
+.tile-plaque-name::after { top: 6px; right: 9px; }
+@media (prefers-reduced-motion: reduce) {
+  .tile-plaque-name { transition-delay: 0s; }
 }
 .place {
   display: grid;
@@ -654,9 +715,7 @@ a {
   .room-spread {
     gap: 28px;
   }
-  .tile-title h3 {
-    font-size: 24px;
-  }
+  .tile-title, .tile-plaque-name { font-size: 24px; }
 }
 @media (max-width: 680px) {
   .masthead {
@@ -766,18 +825,9 @@ a {
   .room-grid {
     gap: 27px 12px;
   }
-  .tile-meta {
-    font-size: 12px;
-    display: grid;
-    gap: 3px;
-  }
-  .tile-title {
-    gap: 4px;
-  }
-  .tile-title h3 {
-    font-size: 20px;
-    overflow-wrap: anywhere;
-  }
+  .tile-title, .tile-plaque-name { font-size: 20px; }
+  .tile-plaque-top { font-size: 12px; }
+  .tile-action { padding-inline: 8px; }
   .place,
   .room-spread,
   .hotel-footer {
