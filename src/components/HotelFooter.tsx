@@ -6,7 +6,8 @@ export default function HotelFooter({ locale, home = false }: { locale: string; 
   const ru = locale !== 'en'
   const name = ru ? 'Берег Радости' : 'Shore of Joy'
   const email = <a href="mailto:info@beregradosti.ru">info@beregradosti.ru</a>
-  const location = ru ? 'Форос, улица Терлецкого' : 'Terletskogo Street, Foros'
+  const location = ru ? 'Форос, улица Терлецкого, 4Н' : '4N Terletskogo Street, Foros'
+  const coordinates = '33.794227,44.391969'
 
   if (home) {
     return (
@@ -17,18 +18,19 @@ export default function HotelFooter({ locale, home = false }: { locale: string; 
             <address>
               <span>{ru ? 'По вопросам бронирования' : 'Booking enquiries'}</span>
               {email}
+              <span className="footer-phone">+7 (978) XXX-XX-XX</span>
             </address>
             <ul className="footer-services">
-              <li><ContactIcon service="telegram" />Telegram</li>
-              <li><ContactIcon service="max" />MAX</li>
-              <li><ContactIcon service="maps" />{ru ? 'Яндекс Карты' : 'Yandex Maps'}</li>
+              <li><a href="https://example.com" target="_blank" rel="noopener noreferrer"><ContactIcon service="telegram" />Telegram</a></li>
+              <li><a href="https://example.com" target="_blank" rel="noopener noreferrer"><ContactIcon service="max" />MAX</a></li>
+              <li><a href="https://yandex.ru/maps/org/bereg_radosti/228164956522/" target="_blank" rel="noopener noreferrer"><ContactIcon service="maps" />{ru ? 'Яндекс Карты' : 'Yandex Maps'}</a></li>
             </ul>
           </div>
           <Image className="home-footer-mark" src="/logo.png" width={330} height={319} alt="" />
           <figure className="footer-map">
             <iframe
-              title={ru ? 'Район улицы Терлецкого в Форосе на карте' : 'Map of the Terletskogo Street area in Foros'}
-              src={'https://yandex.ru/map-widget/v1/?ll=33.7942%2C44.3923&z=16&l=map&lang=' + (ru ? 'ru_RU' : 'en_US')}
+              title={ru ? 'Берег Радости в Форосе на карте' : 'Shore of Joy in Foros on the map'}
+              src={`https://yandex.ru/map-widget/v1/?ll=${coordinates}&pt=${coordinates},pm2rdm&z=17&l=map&lang=${ru ? 'ru_RU' : 'en_US'}`}
               loading="lazy"
             />
             <figcaption>{location}</figcaption>

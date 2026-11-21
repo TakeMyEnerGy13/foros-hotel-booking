@@ -30,10 +30,11 @@
 .navEnd, .socials { display: flex; align-items: center; gap: 10px; }
 .menu { position: relative; }
 .menuToggle, .nav .rooms, .nav :global(.languages) {
-  border: 1px solid rgb(246 241 235 / 66%);
-  border-radius: 999px;
-  color: var(--paper);
-  background: var(--wood);
+  position: relative;
+  border: 1px solid var(--wood);
+  border-radius: 0;
+  color: var(--wood);
+  background: var(--paper);
 }
 .menuToggle, .nav .rooms {
   display: inline-flex;
@@ -41,13 +42,25 @@
   justify-content: center;
   gap: 10px;
   min-height: 44px;
-  padding: 0 20px;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 0 22px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color .2s ease, background-color .2s ease;
 }
-.menuToggle:hover, .menuToggle[aria-expanded='true'], .nav .rooms:hover {
-  background: var(--paper);
-  color: var(--wood);
+.menuToggle::after, .nav .rooms::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  background: var(--plate-corners);
+  background-size: 3px 3px;
+  background-repeat: no-repeat;
+}
+.menuToggle:is(:hover, :focus-visible, [aria-expanded='true']), .nav .rooms:is(:hover, :focus-visible) {
+  background: var(--wood);
+  color: var(--paper);
 }
 .menuPanel {
   position: absolute;
@@ -56,7 +69,7 @@
   min-width: 185px;
   padding: 5px 14px;
   border: 1px solid var(--wood);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--paper);
   color: var(--wood);
 }
@@ -70,20 +83,21 @@
 }
 .menuPanel > a + a, .menuPanel > a + button { border-top: 1px solid #c9c1b7; }
 .menuPanel > a:hover, .menuPanel > button:hover { text-decoration: underline; text-underline-offset: 3px; }
-.nav :global(.languages) { gap: 0; padding: 2px; }
+.nav :global(.languages) { gap: 0; padding: 0; }
 .nav :global(.languages) button {
   min-width: 42px;
-  min-height: 38px;
+  min-height: 42px;
   padding: 0 9px;
-  border-radius: 999px;
+  border-radius: 0;
   font-size: 12px;
   line-height: 1;
-  color: var(--paper);
+  color: var(--wood);
 }
+.nav :global(.languages) button + button { border-left: 1px solid var(--wood); }
 .nav :global(.languages) button + button::before { content: none; }
 .nav :global(.languages) button[aria-pressed='true'] {
-  background: var(--paper);
-  color: var(--wood);
+  background: var(--wood);
+  color: var(--paper);
   text-decoration: none;
 }
 .nav :global(.languages) button:hover { text-decoration: underline; text-underline-offset: 3px; }

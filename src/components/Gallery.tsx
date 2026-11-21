@@ -118,15 +118,18 @@ export default function Gallery({ locale = 'ru' }: { locale?: string }) {
   const [current, setCurrent] = useState(0)
   const change = (n: number) => setCurrent((i) => (i + n + coastPhotos.length) % coastPhotos.length)
   const caption = (i: number) => (ru ? coastPhotos[i].ru : coastPhotos[i].en)
-  const captions = ru
-    ? ['', 'Открыт солнцу', 'На самом юге Крыма', 'У подножия гор']
-    : ['', 'Open to the sun', 'At the southern tip of Crimea', 'At the foot of the mountains']
+  const captions = [
+    null,
+    <>{ru ? 'От скал' : 'From the cliffs'} <span>{ru ? 'к морю' : 'to the sea'}</span></>,
+    ru ? 'На самом юге Крыма' : 'At the southern tip of Crimea',
+    ru ? 'У подножия гор' : 'At the foot of the mountains',
+  ]
   return (
     <section id="gallery" className="coast-gallery" aria-label={ru ? 'Фотогалерея Фороса' : 'Photographs of Foros'}>
       <div className="coast-gallery-grid">
         {coastPhotos.slice(0, captions.length).map((photo, i) => (
           <figure key={photo.src}>
-            {i === 1 && <figcaption>{captions[i]}</figcaption>}
+            {i === 1 && <figcaption className="coast-heading">{captions[i]}</figcaption>}
             <button
               type="button"
               onClick={() => {
