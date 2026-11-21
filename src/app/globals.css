@@ -597,7 +597,6 @@ a {
   gap: var(--photo-gap);
 }
 .coast-gallery-grid figure:nth-child(n + 3) { grid-column: span 6; }
-.coast-gallery-grid figure:last-child { text-align: right; }
 .coast-gallery-grid button,
 .coast-gallery-grid img {
   display: block;
@@ -609,6 +608,7 @@ a {
   overflow: hidden;
 }
 .coast-gallery-grid img { aspect-ratio: 803 / 487; object-fit: cover; }
+.coast-panorama img { scale: 1.015; }
 .coast-gallery-grid figure:nth-child(n + 3) img { aspect-ratio: 10 / 7; }
 @media (prefers-reduced-motion: no-preference) {
   .coast-gallery-grid img { transition: transform .55s cubic-bezier(.22, 1, .36, 1); }
@@ -628,13 +628,6 @@ a {
     }
   }
 }
-.coast-gallery-grid figcaption {
-  color: var(--note);
-  font-size: clamp(20px, 2.78vw, 50px);
-  font-weight: 700;
-  line-height: 1.1;
-}
-.coast-gallery-grid button + figcaption { margin-top: calc(var(--photo-gap) * .75); }
 .coast-gallery-grid .coast-heading {
   align-self: center;
   color: var(--ink);
@@ -685,24 +678,45 @@ a {
   text-decoration: none;
 }
 .footer-contact a:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: .2em; }
-.footer-services {
+.contact-services {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px clamp(14px, 1.35vw, 26px);
-  margin: clamp(20px, 2.2vw, 36px) 0 0;
+  gap: 12px clamp(12px, 1.4vw, 24px);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
-.footer-services a {
-  display: inline-flex;
-  align-items: center;
+.footer-contact .contact-services { margin-top: clamp(20px, 2.2vw, 36px); }
+.contact-services a {
+  display: grid;
+  justify-items: center;
   gap: 8px;
-  min-height: 44px;
-  font-size: clamp(17px, 1.45vw, 24px);
+  min-width: 62px;
+  font-size: clamp(13px, 1vw, 16px);
   font-weight: 500;
   text-decoration: none;
 }
-.footer-services svg { width: 1.2em; height: 1.2em; }
+.contact-service-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(54px, 4.25vw, 66px);
+  aspect-ratio: 1;
+  border: 1px solid rgb(79 66 54 / 45%);
+  border-radius: 28%;
+  color: white;
+  background: radial-gradient(ellipse at 18% 0%, rgb(255 255 255 / 22%), transparent 65%),
+    linear-gradient(150deg, rgb(112 98 84 / 86%), rgb(65 56 49 / 92%));
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 65%), inset 0 -1px 1px rgb(255 255 255 / 16%),
+    0 3px 8px rgb(63 50 38 / 16%);
+  transition: translate .18s ease, filter .18s ease;
+}
+.contact-service-icon svg { width: 48%; height: 48%; }
+@media (prefers-reduced-motion: no-preference) {
+  .contact-services a:is(:hover, :focus-visible) .contact-service-icon { translate: 0 -2px; }
+}
+.contact-services a:is(:hover, :focus-visible) .contact-service-icon { filter: brightness(1.08); }
 .footer-map { min-width: 0; margin: 0; }
 .footer-map iframe {
   display: block;
@@ -750,6 +764,13 @@ a {
   height: min(64svh, 780px);
   object-fit: contain;
 }
+.lightbox .coast-panorama {
+  justify-self: center;
+  width: min(100%, calc(64svh * 863 / 544), calc(780px * 863 / 544));
+  aspect-ratio: 863 / 544;
+  overflow: hidden;
+}
+.lightbox .coast-panorama img { display: block; height: 100%; object-fit: cover; }
 .lightbox-nav {
   display: flex;
   align-items: center;
@@ -1052,9 +1073,17 @@ a {
   .coast-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .coast-gallery-grid figure:nth-child(1), .coast-gallery-grid figure:nth-child(2) { grid-column: 1 / -1; }
   .coast-gallery-grid figure:nth-child(n + 3) { grid-column: span 1; }
-  .home-footer-row { grid-template-columns: minmax(0, 1fr) auto; gap: 24px 12px; }
-  .home-footer-mark { width: clamp(84px, 22vw, 138px); translate: -4px 0; }
-  .footer-map { grid-column: 1 / -1; }
+  .home-footer-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'heading mark' 'address mark' 'services services' 'map map';
+    gap: 20px 12px;
+  }
+  .footer-contact { display: contents; }
+  .footer-contact h2 { grid-area: heading; margin: 0; }
+  .footer-contact address { grid-area: address; }
+  .footer-contact .contact-services { grid-area: services; margin: 0; }
+  .home-footer-mark { grid-area: mark; width: clamp(84px, 22vw, 138px); translate: -4px 0; }
+  .footer-map { grid-area: map; }
   .room-spread {
     gap: 36px;
   }

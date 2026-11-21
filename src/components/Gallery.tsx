@@ -118,20 +118,19 @@ export default function Gallery({ locale = 'ru' }: { locale?: string }) {
   const [current, setCurrent] = useState(0)
   const change = (n: number) => setCurrent((i) => (i + n + coastPhotos.length) % coastPhotos.length)
   const caption = (i: number) => (ru ? coastPhotos[i].ru : coastPhotos[i].en)
-  const captions = [
-    null,
-    <>{ru ? 'От скал' : 'From the cliffs'} <span>{ru ? 'к морю' : 'to the sea'}</span></>,
-    ru ? 'На самом юге Крыма' : 'At the southern tip of Crimea',
-    ru ? 'У подножия гор' : 'At the foot of the mountains',
-  ]
   return (
     <section id="gallery" className="coast-gallery" aria-label={ru ? 'Фотогалерея Фороса' : 'Photographs of Foros'}>
       <div className="coast-gallery-grid">
-        {coastPhotos.slice(0, captions.length).map((photo, i) => (
+        {coastPhotos.slice(0, 4).map((photo, i) => (
           <figure key={photo.src}>
-            {i === 1 && <figcaption className="coast-heading">{captions[i]}</figcaption>}
+            {i === 1 && (
+              <figcaption className="coast-heading">
+                {ru ? 'От скал' : 'From the cliffs'} <span>{ru ? 'к морю' : 'to the sea'}</span>
+              </figcaption>
+            )}
             <button
               type="button"
+              className={i === 0 ? 'coast-panorama' : undefined}
               onClick={() => {
                 setCurrent(i)
                 dialog.current?.showModal()
@@ -139,7 +138,6 @@ export default function Gallery({ locale = 'ru' }: { locale?: string }) {
             >
               <img loading="lazy" src={photo.src} alt={caption(i)} />
             </button>
-            {i > 1 && <figcaption>{captions[i]}</figcaption>}
           </figure>
         ))}
       </div>
@@ -158,7 +156,9 @@ export default function Gallery({ locale = 'ru' }: { locale?: string }) {
         <button autoFocus className="pill" onClick={() => dialog.current?.close()}>
           {ru ? 'Закрыть' : 'Close'} ×
         </button>
-        <img src={coastPhotos[current].src} alt={caption(current)} />
+        <div className={current === 0 ? 'coast-panorama' : undefined}>
+          <img src={coastPhotos[current].src} alt={caption(current)} />
+        </div>
         <div className="lightbox-nav">
           <button aria-label={ru ? 'Назад' : 'Previous'} onClick={() => change(-1)}>
             ←

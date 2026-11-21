@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import ContactIcon from './ContactIcon'
+import ContactServices from './ContactServices'
 import { createPortal } from 'react-dom'
 
 export default function ContactsPopup({ locale }: { locale: string }) {
@@ -39,20 +39,7 @@ export default function ContactsPopup({ locale }: { locale: string }) {
               <div style={{fontFamily: "'Inter', sans-serif", fontSize: '15px', fontWeight: '400', color: 'rgba(255,255,255,0.5)'}}>+7 (978) 000-00-00</div>
             </div>
           </a>
-          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px'}}>
-            <a href="#" style={{...cardStyle, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '20px', textDecoration: 'none', minHeight: '100px'}}>
-              <ContactIcon service="telegram" />
-              <span style={{fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.6)'}}>Telegram</span>
-            </a>
-            <a href="#" style={{...cardStyle, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '20px', textDecoration: 'none', minHeight: '100px'}}>
-              <ContactIcon service="max" />
-              <span style={{fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.6)'}}>MAX</span>
-            </a>
-            <a href="#" style={{...cardStyle, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '20px', textDecoration: 'none', minHeight: '100px'}}>
-              <ContactIcon service="maps" />
-              <span style={{fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.6)'}}>{locale === 'ru' ? 'Яндекс Карты' : 'Yandex Maps'}</span>
-            </a>
-          </div>
+          <ContactServices locale={locale} />
         </div>
       </div>
     </div>,

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import ContactIcon from './ContactIcon'
+import ContactServices from './ContactServices'
 
 export default function HotelFooter({ locale, home = false }: { locale: string; home?: boolean }) {
   const ru = locale !== 'en'
@@ -20,11 +20,7 @@ export default function HotelFooter({ locale, home = false }: { locale: string; 
               {email}
               <span className="footer-phone">+7 (978) XXX-XX-XX</span>
             </address>
-            <ul className="footer-services">
-              <li><a href="https://example.com" target="_blank" rel="noopener noreferrer"><ContactIcon service="telegram" />Telegram</a></li>
-              <li><a href="https://example.com" target="_blank" rel="noopener noreferrer"><ContactIcon service="max" />MAX</a></li>
-              <li><a href="https://yandex.ru/maps/org/bereg_radosti/228164956522/" target="_blank" rel="noopener noreferrer"><ContactIcon service="maps" />{ru ? 'Яндекс Карты' : 'Yandex Maps'}</a></li>
-            </ul>
+            <ContactServices locale={locale} />
           </div>
           <Image className="home-footer-mark" src="/logo.png" width={330} height={319} alt="" />
           <figure className="footer-map">
