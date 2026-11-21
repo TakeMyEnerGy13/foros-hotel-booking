@@ -19,6 +19,17 @@ export function isCalendarDay(value: unknown): value is string {
   return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
 
+export function readStayDate(value: string) {
+  const text = value.trim()
+  if (/^\d{4}-/.test(text)) return isCalendarDay(text) ? text : ''
+  const parts = text.match(/^(\d{2})(\d{2})(\d{4}|\d{2})$/)
+    ?? text.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4}|\d{2})$/)
+  if (!parts) return ''
+  const [, day, month, year] = parts
+  const iso = [year.length === 2 ? '20' + year : year, month.padStart(2, '0'), day.padStart(2, '0')].join('-')
+  return isCalendarDay(iso) ? iso : ''
+}
+
 export function validStay(checkIn: unknown, checkOut: unknown) {
   return isCalendarDay(checkIn) && isCalendarDay(checkOut) && checkIn < checkOut
 }

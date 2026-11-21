@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:bookings": "node --env-file=.env.local --test tests/booking-flow.test.mjs",
+    "test:bookings": "node --env-file=.env.local --test tests/booking-flow.test.mjs tests/stay-date-input.test.mjs",
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {

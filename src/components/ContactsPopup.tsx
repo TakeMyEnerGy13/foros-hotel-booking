@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import ContactIcon from './ContactIcon'
 import { createPortal } from 'react-dom'
 
 export default function ContactsPopup({ locale }: { locale: string }) {
@@ -40,15 +41,15 @@ export default function ContactsPopup({ locale }: { locale: string }) {
           </a>
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px'}}>
             <a href="#" style={{...cardStyle, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '20px', textDecoration: 'none', minHeight: '100px'}}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.496.969z"/></svg>
+              <ContactIcon service="telegram" />
               <span style={{fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.6)'}}>Telegram</span>
             </a>
             <a href="#" style={{...cardStyle, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '20px', textDecoration: 'none', minHeight: '100px'}}>
-              <img src="/max-icon.png" alt="MAX" style={{width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover'}} />
+              <ContactIcon service="max" />
               <span style={{fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.6)'}}>MAX</span>
             </a>
             <a href="#" style={{...cardStyle, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '20px', textDecoration: 'none', minHeight: '100px'}}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              <ContactIcon service="maps" />
               <span style={{fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.6)'}}>{locale === 'ru' ? 'Яндекс Карты' : 'Yandex Maps'}</span>
             </a>
           </div>

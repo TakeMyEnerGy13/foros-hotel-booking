@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 
-export default function WeatherWidget({ locale, variant }: { locale: string; variant?: 'hero' }) {
+export default function WeatherWidget({ locale }: { locale: string }) {
   const [air, setAir] = useState<number | null>(null)
   const [sea, setSea] = useState<number | null>(null)
   useEffect(() => {
@@ -21,33 +21,16 @@ export default function WeatherWidget({ locale, variant }: { locale: string; var
     void read('https://marine-api.open-meteo.com/v1/marine', 'sea_surface_temperature', setSea)
     return () => controller.abort()
   }, [])
-  if (variant === 'hero') {
-    return (
-      <div className="hero-weather">
-        <div>
-          <span>{locale === 'ru' ? 'Воздух' : 'Air'}</span>
-          <strong>{air === null ? '—' : `${air} °C`}</strong>
-        </div>
-        <div>
-          <span>{locale === 'ru' ? 'Море' : 'Sea'}</span>
-          <strong>{sea === null ? '—' : `${sea} °C`}</strong>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="weather label">
-      {air !== null && (
-        <span>
-          {locale === 'ru' ? 'Воздух' : 'Air'} {air}°
-        </span>
-      )}
-      {sea !== null && (
-        <span>
-          {locale === 'ru' ? 'Море' : 'Sea'} {sea}°
-        </span>
-      )}
+    <div className="hero-weather">
+      <div>
+        <span>{locale === 'ru' ? 'Воздух' : 'Air'}</span>
+        <strong>{air === null ? '—' : `${air} °C`}</strong>
+      </div>
+      <div>
+        <span>{locale === 'ru' ? 'Море' : 'Sea'}</span>
+        <strong>{sea === null ? '—' : `${sea} °C`}</strong>
+      </div>
     </div>
   )
 }

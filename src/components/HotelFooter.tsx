@@ -5,7 +5,6 @@ export default function HotelFooter({ locale }: { locale: string }) {
   return (
     <footer id="contacts" className="hotel-footer">
       <div>
-        <span className="label">{ru ? 'Гостиница · Форос' : 'Hotel · Foros'}</span>
         <Link className="footer-name" href="/">
           {ru ? 'Берег Радости' : 'Shore of Joy'}
         </Link>

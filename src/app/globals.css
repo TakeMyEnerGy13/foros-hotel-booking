@@ -285,13 +285,53 @@ a {
   line-height: 1.04;
   letter-spacing: -0.065em;
 }
-.stay-search label,
+.stay-date { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.stay-date label { font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+.stay-date-entry { display: flex; align-items: center; gap: 4px; }
+.stay-date-entry > input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.stay-date-entry > input::placeholder { color: #6d6359; opacity: 1; }
+.stay-date-picker {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.stay-date-picker:hover { background: #e8e0d5; }
+.stay-date-picker:focus-within { outline: 2px solid currentColor; }
+.stay-date-picker input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.stay-date-picker input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; cursor: pointer; }
+@media (scripting: none) {
+  .stay-date-entry > input, .stay-date-picker svg { display: none; }
+  form .stay-date .stay-date-picker { position: static; width: 100%; height: auto; display: block; }
+  .stay-date-picker input[type='date'] { position: static; opacity: 1; font: inherit; color: inherit; }
+  .stay-date-picker input::-webkit-calendar-picker-indicator { position: static; width: 1em; height: 1em; }
+}
+.stay-search .stay-date-entry { border-bottom: 1px solid var(--ink); }
+.stay-search .stay-date-entry > input { font-size: 18px; }
 .guest-form label {
   display: grid;
   gap: 7px;
   min-width: 0;
 }
-.stay-search input,
 .guest-form input,
 .ops-form input,
 .ops-form textarea,
@@ -306,9 +346,6 @@ a {
   padding: 5px 0 8px;
   font-size: 18px;
   line-height: 1.4;
-}
-.stay-search input {
-  color-scheme: light;
 }
 .stay-search .solid {
   align-self: end;
@@ -329,11 +366,6 @@ a {
 .room-story h2,
 .place h2 {
   font-size: clamp(49px, 5.5vw, 106px);
-}
-.section-heading .label,
-.place .label {
-  display: block;
-  margin-bottom: 17px;
 }
 .room-grid {
   display: grid;
@@ -402,14 +434,6 @@ a {
   max-width: 45ch;
   font-size: clamp(18px, 1.6vw, 23px);
 }
-.weather {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.weather:not(:empty) {
-  margin-top: 22px;
-}
 .gallery-strip {
   display: grid;
   grid-auto-flow: column;
@@ -429,10 +453,6 @@ a {
   aspect-ratio: 1.65;
   height: auto;
   border: 1px solid var(--ink);
-}
-.gallery-strip .label {
-  display: block;
-  margin-top: 12px;
 }
 .lightbox {
   position: fixed;
@@ -499,7 +519,6 @@ a {
 }
 .catalog-heading h1 {
   font-size: clamp(66px, 10vw, 170px);
-  margin-top: 23px;
 }
 .catalog {
   padding-top: clamp(35px, 4vw, 75px);
@@ -615,6 +634,10 @@ a {
   color: #69635d;
 }
 @media (max-width: 900px) {
+  .stay-search .stay-date { position: relative; gap: 8px; }
+  .stay-search .stay-date label { padding-right: 28px; }
+  .stay-search .stay-date-picker { position: absolute; right: 0; top: -8px; width: 32px; height: 32px; }
+  .stay-search .stay-date-picker svg { width: 18px; }
   .room-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

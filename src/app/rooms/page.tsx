@@ -31,7 +31,6 @@ export default async function RoomsPage({ searchParams }: Props) {
       <RoomsNav locale={locale} booking="#stay" />
       <main>
         <header className="catalog-heading">
-          <span className="label">{ru ? 'Проживание · Форос' : 'Accommodation · Foros'}</span>
           <h1>{ru ? 'Наши номера' : 'Our rooms'}</h1>
         </header>
         <StaySearch locale={locale} checkIn={checkIn} checkOut={checkOut} />

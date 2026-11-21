@@ -133,7 +133,6 @@ export default function Gallery({ locale = 'ru' }: { locale?: string }) {
             }}
           >
             <img loading="lazy" src={p.src} alt={caption(i)} />
-            <span className="label">{caption(i)} ↗</span>
           </button>
         ))}
       </div>
@@ -156,7 +155,7 @@ export default function Gallery({ locale = 'ru' }: { locale?: string }) {
           <button aria-label={ru ? 'Назад' : 'Previous'} onClick={() => change(-1)}>
             ←
           </button>
-          <span>{caption(current)}</span>
+          <span className="sr-only" aria-live="polite">{caption(current)}</span>
           <button aria-label={ru ? 'Вперёд' : 'Next'} onClick={() => change(1)}>
             →
           </button>

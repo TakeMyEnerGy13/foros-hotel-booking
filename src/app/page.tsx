@@ -3,7 +3,6 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import HomeHero from '@/components/HomeHero'
 import HotelFooter from '@/components/HotelFooter'
-import WeatherWidget from '@/components/WeatherWidget'
 import Gallery from '@/components/Gallery'
 import RoomTile from '@/components/RoomTile'
 
@@ -17,10 +16,7 @@ export default async function Home() {
         <HomeHero locale={locale} />
         <section className="editorial">
           <div className="section-heading">
-            <div>
-              <span className="label">{ru ? 'Проживание' : 'Accommodation'}</span>
-              <h2>{ru ? 'Наши номера' : 'Our rooms'}</h2>
-            </div>
+            <h2>{ru ? 'Наши номера' : 'Our rooms'}</h2>
             <Link className="pill" href="/rooms">
               {ru ? 'Все номера' : 'All rooms'} ↗
             </Link>
@@ -32,17 +28,13 @@ export default async function Home() {
           </div>
         </section>
         <section className="place editorial">
-          <div>
-            <span className="label">{ru ? 'Расположение' : 'Location'}</span>
-            <h2>{ru ? 'Форос' : 'Foros'}</h2>
-          </div>
+          <h2>{ru ? 'Форос' : 'Foros'}</h2>
           <div>
             <p>
               {ru
                 ? 'На южном берегу Крыма, между Чёрным морем и Крымскими горами.'
                 : 'On the southern coast of Crimea, between the Black Sea and the Crimean Mountains.'}
             </p>
-            <WeatherWidget locale={locale} />
           </div>
         </section>
         <Gallery locale={locale} />
