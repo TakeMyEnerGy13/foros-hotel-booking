@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { calendarDay, stayForNights, type Stay } from '@/lib/stay'
@@ -32,6 +32,7 @@ const DAYS_RU = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 export default function BookingCalendar({ roomId, today, locale, price, bookings, initialStay }: Props) {
   const ru = locale !== 'en'
   const router = useRouter()
+  const [refreshing, startRefresh] = useTransition()
   const [viewDate, setViewDate] = useState(() => {
     const [year, month] = (initialStay?.checkIn ?? today).split('-').map(Number)
     return new Date(year, month - 1, 1)
@@ -96,7 +97,12 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
         body: JSON.stringify({ roomId, guestName, guestEmail, guestPhone, checkIn, checkOut }),
       })
       const data = await res.json()
-      if (!res.ok) {
+      if (res.status === 409) {
+        setSelection(undefined)
+        setCrossesBooking(false)
+        setError(ru ? 'Эти даты уже заняты. Выберите другие ночи.' : 'These dates have just been booked. Please choose other nights.')
+        startRefresh(() => router.refresh())
+      } else if (!res.ok) {
         setError(data.error || 'Ошибка при бронировании')
       } else {
         setSuccess(true)
@@ -172,7 +178,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
               aria-label={ds}
               aria-pressed={selected}
               aria-current={ds === today ? 'date' : undefined}
-              disabled={past || booked || loading}
+              disabled={past || booked || loading || refreshing}
               className={[
                 'cal-day',
                 past && 'past',
@@ -234,7 +240,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
           />
         </label>
         {error && <p role="alert">{error}</p>}
-        <button type="submit" className="solid" disabled={loading || crossesBooking || !selection}>
+        <button type="submit" className="solid" disabled={loading || refreshing || crossesBooking || !selection}>
           {loading
             ? ru
               ? 'Отправляем…'

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
-import { hotelToday, overlaps, validStay } from '@/lib/stay'
+import { datesFromQuery, hotelToday, overlaps, validStay, type StayQuery } from '@/lib/stay'
 import { cookies } from 'next/headers'
 import BookingCalendar from './BookingCalendar'
 import { PhotoStage } from '@/components/Gallery'
@@ -14,11 +14,12 @@ export default async function RoomPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ checkIn?: string; checkOut?: string }>
+  searchParams: Promise<StayQuery>
 }) {
   const { id } = await params
   if (!/^\d+$/.test(id) || Number(id) > 2147483647) notFound()
-  const { checkIn = '', checkOut = '' } = await searchParams
+  const requested = datesFromQuery(await searchParams)
+  const { checkIn, checkOut } = requested
   const cookieStore = await cookies()
   const locale = cookieStore.get('locale')?.value || 'ru'
 
@@ -36,7 +37,6 @@ export default async function RoomPage({
     checkOut: b.checkOut.toISOString().slice(0, 10),
   }))
   const today = hotelToday()
-  const requested = { checkIn, checkOut }
   const initialStay =
     validStay(checkIn, checkOut) && checkIn >= today && !bookings.some((b) => overlaps(b, requested))
       ? requested

@@ -1,20 +1,30 @@
 'use client'
-import { useState } from 'react'
+import { useRef } from 'react'
 import ContactServices from './ContactServices'
-import { createPortal } from 'react-dom'
 
 export default function ContactsPopup({ locale }: { locale: string }) {
-  const [open, setOpen] = useState(false)
-  const modal = open ? createPortal(
-    <div
-      style={{position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'}}
-      onClick={() => setOpen(false)}
-    >
-      <div style={{position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(10px)'}} />
-      <div
-        className="contacts-popup"
-        onClick={(e) => e.stopPropagation()}
-        style={{position: 'relative', width: '100%', maxWidth: '480px', color: 'white', zIndex: 10, background: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '28px', boxShadow: '0 24px 80px rgba(0,0,0,0.6)'}}
+  const dialog = useRef<HTMLDialogElement>(null)
+  const trigger = useRef<HTMLButtonElement>(null)
+  const ru = locale === 'ru'
+  return (
+    <>
+      <button
+        ref={trigger} type="button" aria-haspopup="dialog"
+        onClick={() => dialog.current?.showModal()}
+        style={{fontFamily: "'Inter', sans-serif", background: 'none', border: 'none', cursor: 'pointer'}}
+        className="text-white/80 hover:text-white text-sm transition-colors w-full text-left"
+      >
+        {ru ? 'Контакты' : 'Contacts'}
+      </button>
+      <dialog ref={dialog} className="contacts-popup" aria-label={ru ? 'Контакты' : 'Contacts'}
+        onClose={() => trigger.current?.focus({ preventScroll: true })}
+        onKeyDown={(event) => { if (event.key === 'Escape') event.stopPropagation() }}
+        onClick={(event) => {
+          if (event.target !== event.currentTarget) return
+          const bounds = event.currentTarget.getBoundingClientRect()
+          if (event.clientX < bounds.left || event.clientX > bounds.right ||
+              event.clientY < bounds.top || event.clientY > bounds.bottom) event.currentTarget.close()
+        }}
       >
         <div className="contacts-popup-header">
           <div className="contacts-popup-identity">
@@ -24,7 +34,7 @@ export default function ContactsPopup({ locale }: { locale: string }) {
               <p style={{fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0 0'}}>{locale === 'ru' ? 'Форос · Крым · Южный берег' : 'Foros · Crimea · Southern Coast'}</p>
             </div>
           </div>
-          <button onClick={() => setOpen(false)} style={{width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.5)', fontSize: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>x</button>
+          <button type="button" aria-label={ru ? 'Закрыть контакты' : 'Close contacts'} onClick={() => dialog.current?.close()} style={{width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.5)', fontSize: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>x</button>
         </div>
         <div className="contacts-popup-body">
           <a href="tel:+79780000000" className="contacts-popup-phone">
@@ -36,21 +46,7 @@ export default function ContactsPopup({ locale }: { locale: string }) {
           </a>
           <ContactServices locale={locale} />
         </div>
-      </div>
-    </div>,
-    document.body
-  ) : null
-
-  return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        style={{fontFamily: "'Inter', sans-serif", background: 'none', border: 'none', cursor: 'pointer'}}
-        className="text-white/80 hover:text-white text-sm transition-colors w-full text-left"
-      >
-        {locale === 'ru' ? 'Контакты' : 'Contacts'}
-      </button>
-      {modal}
+      </dialog>
     </>
   )
 }

@@ -1,20 +1,22 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
-import { validStay, overlapFilter, hotelToday } from '@/lib/stay'
+import { datesFromQuery, validStay, overlapFilter, hotelToday, type StayQuery } from '@/lib/stay'
 import RoomsNav from '@/components/RoomsNav'
 import HotelFooter from '@/components/HotelFooter'
 import StaySearch from '@/components/StaySearch'
 import RoomTile from '@/components/RoomTile'
 
 interface Props {
-  searchParams: Promise<{ checkIn?: string; checkOut?: string }>
+  searchParams: Promise<StayQuery>
 }
 
 export default async function RoomsPage({ searchParams }: Props) {
   const ru = (await cookies()).get('locale')?.value !== 'en'
   const locale = ru ? 'ru' : 'en'
-  const { checkIn = '', checkOut = '' } = await searchParams
+  const queryDates = await searchParams
+  const { checkIn, checkOut } = datesFromQuery(queryDates)
+  const hasDates = Boolean(queryDates.checkIn || queryDates.checkOut)
   const searching = validStay(checkIn, checkOut) && checkIn >= hotelToday()
   const [rooms, conflicts] = await Promise.all([
     prisma.room.findMany({ orderBy: { id: 'asc' } }),
@@ -41,7 +43,7 @@ export default async function RoomsPage({ searchParams }: Props) {
               <Link href="/rooms">{ru ? 'Сбросить даты' : 'Clear dates'}</Link>
             </p>
           )}
-          {(checkIn || checkOut) && !searching && (
+          {hasDates && !searching && (
             <p className="search-result" role="alert">
               {ru ? 'Проверьте даты. Показаны все номера.' : 'Check your dates. Showing all rooms.'}
             </p>
