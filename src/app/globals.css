@@ -759,7 +759,7 @@ a {
   aspect-ratio: 4 / 3;
   border-radius: 16px;
 }
-.contacts-popup .contact-service-icon svg { width: 82%; height: 82%; }
+.contacts-popup .contact-service-icon svg { width: clamp(30px, 8vw, 42px); height: auto; }
 .footer-map { min-width: 0; margin: 0; }
 .footer-map iframe {
   display: block;
