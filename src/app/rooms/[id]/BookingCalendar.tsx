@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 
 import { calendarDay, stayForNights, type Stay } from '@/lib/stay'
 import BookingConfirmation, { type GuestReceipt } from './BookingConfirmation'
+import GuestPhoneInput from './GuestPhoneInput'
 
 interface Props {
   roomId: number
@@ -107,7 +108,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       } else if (!res.ok) {
         setError(data.error || 'Ошибка при бронировании')
       } else {
-        setReceipt({ id: data.id, holdExpiresAt: data.holdExpiresAt, checkIn, checkOut })
+        setReceipt({ holdExpiresAt: data.holdExpiresAt, checkIn, checkOut })
         router.refresh()
       }
     } catch {
@@ -216,17 +217,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
             onChange={(e) => setGuestEmail(e.target.value)}
           />
         </label>
-        <label>
-          <span className="sr-only">{ru ? 'Телефон' : 'Phone'}</span>
-          <input
-            type="tel"
-            autoComplete="tel"
-            placeholder={ru ? 'Телефон' : 'Phone'}
-            required
-            value={guestPhone}
-            onChange={(e) => setGuestPhone(e.target.value)}
-          />
-        </label>
+        <GuestPhoneInput value={guestPhone} onChange={setGuestPhone} ru={ru} />
         {error && <p role="alert">{error}</p>}
         <button type="submit" className="solid" disabled={loading || refreshing || crossesBooking || !selection}>
           {loading
