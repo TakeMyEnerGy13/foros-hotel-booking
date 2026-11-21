@@ -870,6 +870,18 @@ a {
   text-transform: uppercase;
 }
 .home-footer-name:lang(en) { font-size: 14.11cqi; }
+.home-footer-name > span { display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  .home-footer-name.is-revealed > span {
+    animation: footer-word-rise 850ms cubic-bezier(.22, 1, .36, 1) backwards;
+  }
+  .home-footer-name.is-revealed > span:nth-of-type(2) { animation-delay: 100ms; }
+  .home-footer-name.is-revealed > span:nth-of-type(3) { animation-delay: 200ms; }
+  @keyframes footer-word-rise {
+    from { transform: translateY(.32em); opacity: .12; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+}
 .lightbox {
   position: fixed;
   inset: 0;

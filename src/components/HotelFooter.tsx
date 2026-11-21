@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import ContactServices from './ContactServices'
+import FooterWordmark from './FooterWordmark'
 import { bookingContact } from '@/lib/booking-contact'
 
 export default function HotelFooter({ locale }: { locale: string }) {
   const ru = locale !== 'en'
-  const name = ru ? 'Берег Радости' : 'Shore of Joy'
   const email = <a href="mailto:info@beregradosti.ru">info@beregradosti.ru</a>
   const location = ru ? 'Форос, улица Терлецкого, 4Н' : '4N Terletskogo Street, Foros'
   const coordinates = '33.794227,44.391969'
@@ -31,9 +31,7 @@ export default function HotelFooter({ locale }: { locale: string }) {
           <figcaption>{location}</figcaption>
         </figure>
       </div>
-      <a className="home-footer-name" lang={ru ? 'ru' : 'en'} href="#top" aria-label={name + (ru ? ' — наверх' : ' — back to top')}>
-        {name}
-      </a>
+      <FooterWordmark locale={locale} />
     </footer>
   )
 }
