@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { calendarDay, overlaps, type Stay } from '@/lib/stay'
+import { calendarDay, overlaps, toggleStayNight, type Stay } from '@/lib/stay'
 
 interface Props {
   roomId: number
@@ -36,8 +36,12 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
     const [year, month] = (initialStay?.checkIn ?? today).split('-').map(Number)
     return new Date(year, month - 1, 1)
   })
-  const [checkIn, setCheckIn] = useState(initialStay?.checkIn ?? '')
-  const [checkOut, setCheckOut] = useState(initialStay?.checkOut ?? '')
+  const [mode, setMode] = useState<'range' | 'nights'>('range')
+  const [pendingArrival, setPendingArrival] = useState('')
+  const [selectedStays, setSelectedStays] = useState<Stay[]>(initialStay ? [initialStay] : [])
+  const stay = selectedStays.length === 1 ? selectedStays[0] : undefined
+  const checkIn = stay?.checkIn ?? pendingArrival
+  const checkOut = stay?.checkOut ?? ''
   const [guestName, setGuestName] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
@@ -46,19 +50,31 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
   const [success, setSuccess] = useState(false)
 
   const isBooked = (day: string) => bookings.some((b) => b.checkIn <= day && day < b.checkOut)
-  const selectingEnd = Boolean(checkIn && !checkOut)
-  const canEndOn = (day: string) =>
-    selectingEnd && day > checkIn && !bookings.some((b) => overlaps(b, { checkIn, checkOut: day }))
+  const canEndOn = (day: string) => !bookings.some(b => overlaps(b, { checkIn: pendingArrival, checkOut: day }))
+
+  function switchMode(next: 'range' | 'nights') {
+    if (next === mode) return
+    if (next === 'nights' && pendingArrival) {
+      setSelectedStays(toggleStayNight([], pendingArrival))
+      setPendingArrival('')
+    }
+    setMode(next)
+    setError('')
+  }
 
   const handleDayClick = (day: string) => {
     if (day < today) return
     setError('')
-    if (selectingEnd && day > checkIn) {
-      if (canEndOn(day)) setCheckOut(day)
-      else setError(ru ? 'В выбранном диапазоне есть занятые ночи' : 'Some nights are already booked')
+    if (mode === 'nights') {
+      if (!isBooked(day)) setSelectedStays(stays => toggleStayNight(stays, day))
+    } else if (pendingArrival && day > pendingArrival) {
+      if (canEndOn(day)) {
+        setSelectedStays([{ checkIn: pendingArrival, checkOut: day }])
+        setPendingArrival('')
+      } else setError(ru ? 'В выбранном диапазоне есть занятые ночи' : 'Some nights are already booked')
     } else if (!isBooked(day)) {
-      setCheckIn(day)
-      setCheckOut('')
+      setSelectedStays([])
+      setPendingArrival(day)
     }
   }
 
@@ -123,6 +139,14 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
 
   const monthName = ru ? MONTHS_RU[month] : viewDate.toLocaleString('en-GB', { month: 'long' })
   const weekdays = ru ? DAYS_RU : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+  let instruction = ru ? 'Выберите дату заезда, затем дату выезда.' : 'Choose your check-in day, then your check-out day.'
+  if (mode === 'nights') {
+    instruction = selectedStays.length > 1
+      ? (ru ? 'Для одной брони выберите ночи подряд.' : 'Choose consecutive nights for one stay.')
+      : (ru ? 'Нажмите на ночь, чтобы выбрать её или снять выбор.' : 'Tap each night to select or deselect it.')
+  } else if (pendingArrival) {
+    instruction = ru ? 'Выберите день выезда. Эта ночь не входит в бронь.' : 'Choose your check-out day. That night is excluded.'
+  }
   return (
     <section
       className="booking-panel"
@@ -130,6 +154,15 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       aria-label={ru ? 'Календарь бронирования' : 'Booking calendar'}
     >
       <h2>{ru ? 'Забронировать номер' : 'Book your stay'}</h2>
+      <div className="cal-modes" role="group" aria-label={ru ? 'Способ выбора дат' : 'Date selection mode'}>
+        <button type="button" aria-pressed={mode === 'range'} onClick={() => switchMode('range')}>
+          {ru ? 'Заезд и выезд' : 'Check-in and out'}
+        </button>
+        <button type="button" aria-pressed={mode === 'nights'} onClick={() => switchMode('nights')}>
+          {ru ? 'По ночам' : 'Pick nights'}
+        </button>
+      </div>
+      <p className="cal-instruction" aria-live="polite">{instruction}</p>
       <div className="cal-month">
         <button
           type="button"
@@ -158,9 +191,10 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
         {days.map((date, i) => {
           if (!date) return <span key={'blank-' + i} />
           const ds = calendarDay(date)
-          const choosingCheckout = selectingEnd && ds > checkIn
+          const choosingCheckout = Boolean(pendingArrival && ds > pendingArrival)
           const crossesBooking = choosingCheckout && !canEndOn(ds)
-          const selected = ds === checkIn || ds === checkOut || Boolean(checkOut && ds > checkIn && ds < checkOut)
+          const selected = ds === pendingArrival || (mode === 'range' && ds === checkOut)
+            || selectedStays.some(period => period.checkIn <= ds && ds < period.checkOut)
           const booked = isBooked(ds) && (!choosingCheckout || crossesBooking) && !selected
           const past = ds < today
           return (
@@ -187,11 +221,6 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
           )
         })}
       </div>
-      {(checkIn || checkOut) && (
-        <p className="stay-summary" aria-live="polite">
-          <span>{checkIn}</span> → <span>{checkOut || '…'}</span>
-        </p>
-      )}
       <form
         className="guest-form"
         onSubmit={(e) => {

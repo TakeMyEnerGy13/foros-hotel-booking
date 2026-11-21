@@ -937,6 +937,10 @@ a {
   grid-area: back;
   align-self: end;
   justify-self: start;
+  width: min(100%, clamp(240px, 22vw, 360px));
+  min-height: clamp(64px, 5.2vw, 84px);
+  font-size: clamp(16px, 1.25vw, 20px);
+  gap: 16px;
 }
 .room-story h2 {
   margin: 0 0 clamp(20px, 2vw, 32px);
@@ -970,16 +974,33 @@ a {
   margin: 12px 0 25px;
 }
 .booking-panel > h2:first-child { margin-top: 0; }
-.cal-month,
-.stay-summary {
+.cal-month {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
-.cal-month, .calendar-grid {
+.cal-modes, .cal-instruction, .cal-month, .calendar-grid {
   max-width: 28rem;
   margin-inline: auto;
+}
+.cal-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--ink);
+}
+.cal-modes button {
+  min-height: 42px;
+  padding: 6px 8px;
+  font-size: 14px;
+}
+.cal-modes button[aria-pressed='true'] { background: var(--ink); color: var(--linen); }
+.cal-modes button:focus-visible { outline-offset: -4px; }
+.cal-instruction {
+  margin-block: 10px 18px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--muted);
 }
 .cal-month strong {
   font-weight: 500;
@@ -1032,10 +1053,6 @@ a {
   background: var(--ink);
   color: var(--linen);
   border-color: var(--ink);
-}
-.stay-summary {
-  justify-content: flex-start;
-  margin-top: 12px;
 }
 .guest-form,
 .ops-form {
@@ -1182,6 +1199,7 @@ a {
     grid-template-areas: 'story' 'booking' 'back';
   }
   .all-rooms-link { min-height: 46px; min-width: 112px; padding-inline: 16px; font-size: 12px; }
+  .room-spread > .all-rooms-link { width: 100%; }
   .home-rooms .room-grid { gap: 18px 12px; }
   .home-rooms .tile-caption { min-height: 0; }
   .home-place { grid-template-columns: 1fr; gap: 20px; }

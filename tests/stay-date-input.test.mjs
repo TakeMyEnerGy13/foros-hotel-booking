@@ -4,7 +4,27 @@ import { createRequire } from 'node:module'
 import { register } from 'ts-node'
 
 register({ skipProject: true, transpileOnly: true, compilerOptions: { module: 'CommonJS' } })
-const { maskStayDate, readStayDate } = createRequire(import.meta.url)('../src/lib/stay.ts')
+const { maskStayDate, readStayDate, toggleStayNight } = createRequire(import.meta.url)('../src/lib/stay.ts')
+
+test('individual nights join only when every intervening night is selected', () => {
+  const first = toggleStayNight([], '2026-11-21')
+  const apart = toggleStayNight(first, '2026-11-23')
+  assert.deepEqual(apart, [
+    { checkIn: '2026-11-21', checkOut: '2026-11-22' },
+    { checkIn: '2026-11-23', checkOut: '2026-11-24' },
+  ])
+  const joined = toggleStayNight(apart, '2026-11-22')
+  assert.deepEqual(joined, [{ checkIn: '2026-11-21', checkOut: '2026-11-24' }])
+  assert.deepEqual(toggleStayNight(joined, '2026-11-22'), apart)
+  assert.deepEqual(toggleStayNight(first, '2026-11-21'), [])
+})
+
+test('night selection extends across leap day and the end of the year', () => {
+  const march = toggleStayNight([], '2028-03-01')
+  assert.deepEqual(toggleStayNight(march, '2028-02-29'), [{ checkIn: '2028-02-29', checkOut: '2028-03-02' }])
+  const newYear = toggleStayNight([], '2026-12-31')
+  assert.deepEqual(toggleStayNight(newYear, '2027-01-01'), [{ checkIn: '2026-12-31', checkOut: '2027-01-02' }])
+})
 
 test('guest date entry accepts digits, localized dates and pasted ISO dates', () => {
   for (const value of ['09052027', '090527', '9.5.2027', '09/05/2027', '09.05.27', ' 2027-05-09 ']) {
