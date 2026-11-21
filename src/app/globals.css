@@ -238,8 +238,7 @@ a {
 .stage-title h1,
 .catalog-heading h1,
 .editorial h2,
-.booking-panel h2,
-.operations h1 {
+.booking-panel h2 {
   margin: 0;
   line-height: 0.98;
   letter-spacing: -0.064em;
@@ -416,10 +415,7 @@ a {
   gap: 7px;
   min-width: 0;
 }
-.guest-form input,
-.ops-form input,
-.ops-form textarea,
-.ops-form select {
+.guest-form input {
   color: var(--ink);
   background: transparent;
   border: 0;
@@ -1036,8 +1032,7 @@ a {
   color: var(--linen);
   border-color: var(--ink);
 }
-.guest-form,
-.ops-form {
+.guest-form {
   display: grid;
   gap: 16px;
   margin-top: 23px;
@@ -1215,147 +1210,4 @@ a {
     transition-duration: 0s !important;
     animation-duration: 0s !important;
   }
-}
-.operations {
-  min-height: 100svh;
-  padding: 0 var(--gutter) 64px;
-  background: var(--linen);
-  color: var(--ink);
-}
-.ops-nav,
-.ops-toolbar,
-.ops-actions,
-.ops-dates {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-.ops-nav {
-  min-height: 76px;
-  border-bottom: 1px solid var(--ink);
-}
-.ops-heading {
-  padding: clamp(40px, 6vw, 90px) 0 40px;
-}
-.operations h1 {
-  font-size: clamp(52px, 8vw, 140px);
-  margin-top: 12px;
-}
-.ops-toolbar {
-  margin-bottom: 22px;
-}
-.ops-toolbar h2,
-.ops-dialog h2 {
-  font-size: clamp(27px, 3.2vw, 50px);
-  font-weight: 400;
-  letter-spacing: -0.055em;
-  line-height: 1.1;
-}
-.ops-scroll {
-  max-width: 100%;
-  overflow-x: auto;
-}
-.operations table {
-  border-collapse: collapse;
-  width: 100%;
-}
-.occupancy {
-  min-width: 1150px;
-}
-.operations table th,
-.operations table td {
-  padding: 8px;
-  border: 1px solid var(--line);
-  font-size: 14px;
-  text-align: left;
-}
-.occupancy thead th {
-  text-align: center;
-}
-.occupancy th:first-child {
-  min-width: 154px;
-  position: sticky;
-  left: 0;
-  background: var(--linen);
-  z-index: 1;
-}
-.occupancy td {
-  padding: 2px !important;
-  text-align: center !important;
-}
-.occupancy td button {
-  display: block;
-  width: 100%;
-  height: 38px;
-  max-width: 42px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.occupancy .busy {
-  background: var(--ink);
-  color: var(--linen);
-}
-.cal-key {
-  margin-top: 14px;
-}
-.ops-dialog {
-  position: fixed;
-  inset: 0;
-  margin: auto;
-  width: min(470px, 94vw);
-  max-height: 92svh;
-  padding: 0;
-  background: var(--linen);
-  border: 1px solid var(--ink);
-  color: var(--ink);
-}
-.ops-dialog > div {
-  padding: 26px;
-}
-.ops-dialog h2 {
-  margin: 12px 0 20px;
-}
-.ops-dialog::backdrop {
-  background: rgb(35 31 28 / 0.65);
-}
-.ops-form label {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-.ops-dates > label {
-  width: 50%;
-}
-.ops-actions {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-.ops-actions .pill,
-.ops-actions .solid {
-  min-height: 38px;
-  font-size: 12px;
-  padding: 9px 13px;
-}
-.login-view {
-  display: grid;
-  align-content: start;
-  padding-top: 25px;
-}
-.login-view > .wordmark {
-  justify-self: start;
-}
-.login-view .ops-form {
-  width: min(430px, 100%);
-  margin: clamp(50px, 12vh, 160px) auto 0;
-  border-block: 1px solid var(--ink);
-  padding: 35px 0;
-  gap: 24px;
-}
-.login-view h1 {
-  margin: 0;
-}
-.booking-list th,
-.booking-list td {
-  padding: 14px !important;
 }

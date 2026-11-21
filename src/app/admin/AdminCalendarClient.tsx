@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import styles from './AdminAppearance.module.css'
 import { calendarDay } from '@/lib/stay'
 
 interface Booking {
@@ -167,60 +169,89 @@ export default function AdminCalendarClient() {
     } else setMonth((m) => m + 1)
   }
 
+  const inputStyle = {
+    width: '100%',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '10px',
+    padding: '10px 14px',
+    color: 'white',
+    fontFamily: "'Inter', sans-serif",
+    fontSize: '14px',
+    outline: 'none',
+    boxSizing: 'border-box' as const,
+  }
+
+  const labelStyle = {
+    fontFamily: "'Inter', sans-serif",
+    fontSize: '11px',
+    color: 'rgba(255,255,255,0.4)',
+    textTransform: 'uppercase' as const,
+    marginBottom: '6px',
+    display: 'block',
+  }
+
   return (
-    <main className="operations">
-      <nav className="ops-nav">
-        <Link className="wordmark" href="/">
-          берег радости
-        </Link>
-        <Link className="pill" href="/admin/bookings">
-          Все бронирования ↗
-        </Link>
-      </nav>
-      <header className="ops-heading">
-        <span className="label">Панель администратора</span>
-        <h1>Календарь</h1>
-      </header>
-      <div className="ops-toolbar">
-        <h2>
-          {MONTHS[month]} {year}
-        </h2>
-        <div>
-          <button className="pill" onClick={prevMonth} aria-label="Предыдущий месяц">
-            ←
-          </button>{' '}
-          <button className="pill" onClick={nextMonth} aria-label="Следующий месяц">
-            →
-          </button>
+    <main className={styles.surface} style={{minHeight: '100vh', background: '#0f0f0f', color: 'white', fontFamily: "'Inter', sans-serif"}}>
+      <div className={styles.bar} style={{borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
+          <Image src="/logo.png" alt="" width={40} height={40} />
+          <div>
+            <h1 style={{fontFamily: "'DM Serif Display', serif", fontSize: '22px', margin: 0}}>Берег Радости</h1>
+            <p style={{fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0}}>Панель администратора</p>
+          </div>
+        </div>
+        <div style={{display: 'flex', gap: '12px'}}>
+          <Link href="/admin/bookings" className={styles.navLink}>Все бронирования</Link>
+          <Link href="/" className={styles.navLink}>На сайт</Link>
         </div>
       </div>
-      <div className="ops-scroll">
-        <table className="occupancy">
+
+      <div className={styles.bar} style={{padding: '24px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
+          <button aria-label="Предыдущий месяц" onClick={prevMonth} style={{width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', fontSize: '16px'}}>←</button>
+          <h2 style={{fontFamily: "'DM Serif Display', serif", fontSize: '28px', margin: 0}}>{MONTHS[month]} {year}</h2>
+          <button aria-label="Следующий месяц" onClick={nextMonth} style={{width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', fontSize: '16px'}}>→</button>
+        </div>
+        <div style={{display: 'flex', gap: '16px', fontSize: '12px', color: 'rgba(255,255,255,0.4)'}}>
+          <span style={{display: 'flex', alignItems: 'center', gap: '6px'}}><span style={{width: '12px', height: '12px', borderRadius: '3px', background: 'rgba(245,158,11,0.7)', display: 'inline-block'}}></span>Занято</span>
+          <span style={{display: 'flex', alignItems: 'center', gap: '6px'}}><span style={{width: '12px', height: '12px', borderRadius: '3px', background: 'rgba(255,255,255,0.06)', display: 'inline-block'}}></span>Свободно</span>
+        </div>
+      </div>
+
+      <div style={{padding: '0 32px 32px', overflowX: 'auto'}}>
+        <table style={{width: '100%', borderCollapse: 'collapse', minWidth: '900px'}}>
           <thead>
             <tr>
-              <th>Номер</th>
-              {days.map((day) => (
-                <th key={day}>{day}</th>
-              ))}
+              <th style={{width: '160px', padding: '8px 12px', textAlign: 'left', fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.06)'}}>Номер</th>
+              {days.map(d => {
+                const dow = new Date(year, month, d).getDay()
+                const isWeekend = dow === 0 || dow === 6
+                return <th key={d} style={{padding: '8px 2px', textAlign: 'center', fontSize: '11px', color: isWeekend ? 'rgba(245,158,11,0.7)' : 'rgba(255,255,255,0.4)', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.06)', minWidth: '30px'}}>{d}</th>
+              })}
             </tr>
           </thead>
           <tbody>
-            {rooms.map((room) => (
-              <tr key={room.id}>
-                <th scope="row">{room.name}</th>
-                {days.map((day) => {
-                  const booked = getBookingForDay(room.id, day)
-                  const date = calendarDay(new Date(year, month, day))
+            {rooms.map(room => (
+              <tr key={room.id} style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
+                <td style={{padding: '8px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: 500, whiteSpace: 'nowrap'}}>
+                  <div style={{fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '2px'}}>№{room.id}</div>
+                  {room.name}
+                </td>
+                {days.map(d => {
+                  const booking = getBookingForDay(room.id, d)
+                  const isToday = new Date(year, month, d).toDateString() === new Date().toDateString()
                   return (
-                    <td key={day}>
+                    <td key={d} style={{padding: '3px', textAlign: 'center'}}>
                       <button
-                        className={booked ? 'busy' : ''}
-                        aria-label={
-                          room.name + ', ' + date + ', ' + (booked ? booked.guestName : 'свободно')
-                        }
-                        onClick={() => (booked ? openEdit(booked) : openAdd(room.id, day))}
+                        type="button"
+                        aria-label={room.name + ', ' + calendarDay(new Date(year, month, d)) + ', ' + (booking?.guestName ?? 'свободно')}
+                        onClick={() => booking ? openEdit(booking) : openAdd(room.id, d)}
+                        style={{width: '100%', height: '34px', borderRadius: '6px', background: booking ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.03)', border: isToday ? '1px solid rgba(245,158,11,0.6)' : '1px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s'}}
+                        onMouseEnter={e => (e.currentTarget.style.background = booking ? 'rgba(245,158,11,0.45)' : 'rgba(255,255,255,0.08)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = booking ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.03)')}
                       >
-                        {booked?.guestName.split(' ')[0] ?? '·'}
+                        {booking && <span style={{fontSize: '9px', color: 'rgba(255,255,255,0.9)', overflow: 'hidden', maxWidth: '26px', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{booking.guestName.split(' ')[0]}</span>}
                       </button>
                     </td>
                   )
@@ -230,91 +261,55 @@ export default function AdminCalendarClient() {
           </tbody>
         </table>
       </div>
-      <p className="label cal-key">○ Свободно　● Занято</p>
-      {error && !showModal && <p role="alert">{error}</p>}
+
+      {error && !showModal && <p role="alert" className="px-8 text-red-300">{error}</p>}
       {showModal && (
         <BookingDialog onClose={() => setShowModal(false)}>
-          <span className="label">
-            {editBooking?.room.name ?? rooms.find((r) => r.id === addRoomId)?.name}
-          </span>
-          <h2>{editBooking ? 'Редактировать бронь' : 'Новая бронь'}</h2>
-          <form
-            className="ops-form"
-            onSubmit={(e) => {
-              e.preventDefault()
-              void submitChange(editBooking ? 'PUT' : 'POST')
-            }}
-          >
-            <div className="ops-dates">
-              <label>
-                Заезд
-                <input
-                  type="date"
-                  required
-                  value={form.checkIn}
-                  onChange={(e) => setForm({ ...form, checkIn: e.target.value })}
-                />
-              </label>
-              <label>
-                Выезд
-                <input
-                  type="date"
-                  required
-                  value={form.checkOut}
-                  onChange={(e) => setForm({ ...form, checkOut: e.target.value })}
-                />
-              </label>
+          <form onSubmit={event => { event.preventDefault(); void submitChange(editBooking ? 'PUT' : 'POST') }}>
+            <div style={{padding: '24px 28px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+              <div>
+                <h3 style={{fontFamily: "'DM Serif Display', serif", fontSize: '20px', margin: 0}}>{editBooking ? 'Редактировать бронь' : 'Новая бронь'}</h3>
+                {(editBooking || addRoomId) && <p style={{fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0 0'}}>{editBooking ? editBooking.room.name : rooms.find(r => r.id === addRoomId)?.name}</p>}
+              </div>
+              <button type="button" aria-label="Закрыть" onClick={() => setShowModal(false)} style={{background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '22px', cursor: 'pointer'}}>×</button>
             </div>
-            <label>
-              Имя гостя
-              <input
-                required
-                placeholder="Иван Иванов"
-                value={form.guestName}
-                onChange={(e) => setForm({ ...form, guestName: e.target.value })}
-              />
-            </label>
-            <label>
-              Телефон
-              <input
-                type="tel"
-                value={form.guestPhone}
-                onChange={(e) => setForm({ ...form, guestPhone: e.target.value })}
-              />
-            </label>
-            <label>
-              Заметка
-              <textarea
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              />
-            </label>
-            <label>
-              Статус
-              <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                <option value="confirmed">Подтверждена</option>
-                <option value="pending">Ожидает</option>
-                <option value="cancelled">Отменена</option>
-              </select>
-            </label>
-            {error && <p role="alert">{error}</p>}
-            <div className="ops-actions">
-              {editBooking && (
-                <button
-                  type="button"
-                  className="pill"
-                  disabled={loading}
-                  onClick={() => submitChange('DELETE')}
-                >
-                  Удалить
-                </button>
-              )}
-              <button type="button" className="pill" onClick={() => setShowModal(false)}>
-                Отмена
-              </button>
-              <button type="submit" className="solid" disabled={loading}>
-                {loading ? 'Сохранение…' : editBooking ? 'Сохранить' : 'Добавить бронь'}
-              </button>
+            <div style={{padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '16px'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px'}}>
+                <div>
+                  <label htmlFor="booking-check-in" style={labelStyle}>Дата заезда</label>
+                  <input id="booking-check-in" required type="date" value={form.checkIn} onChange={e => setForm(f => ({...f, checkIn: e.target.value}))} style={{...inputStyle, colorScheme: 'dark'}} />
+                </div>
+                <div>
+                  <label htmlFor="booking-check-out" style={labelStyle}>Дата выезда</label>
+                  <input id="booking-check-out" required type="date" value={form.checkOut} onChange={e => setForm(f => ({...f, checkOut: e.target.value}))} style={{...inputStyle, colorScheme: 'dark'}} />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="booking-guest" style={labelStyle}>Имя гостя</label>
+                <input id="booking-guest" required type="text" placeholder="Иван Иванов" value={form.guestName} onChange={e => setForm(f => ({...f, guestName: e.target.value}))} style={inputStyle} />
+              </div>
+              <div>
+                <label htmlFor="booking-phone" style={labelStyle}>Телефон</label>
+                <input id="booking-phone" type="tel" placeholder="+7 (978) 000-00-00" value={form.guestPhone} onChange={e => setForm(f => ({...f, guestPhone: e.target.value}))} style={inputStyle} />
+              </div>
+              <div>
+                <label htmlFor="booking-notes" style={labelStyle}>Заметка</label>
+                <textarea id="booking-notes" placeholder="Пожелания, комментарии..." value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} style={{...inputStyle, height: '80px', resize: 'none'}} />
+              </div>
+              <div>
+                <label htmlFor="booking-status" style={labelStyle}>Статус</label>
+                <select id="booking-status" value={form.status} onChange={e => setForm(f => ({...f, status: e.target.value}))} style={{...inputStyle, cursor: 'pointer'}}>
+                  <option value="confirmed">Подтверждена</option>
+                  <option value="pending">Ожидает</option>
+                  <option value="cancelled">Отменена</option>
+                </select>
+              </div>
+            </div>
+            {error && <p role="alert" className="px-7 text-red-300">{error}</p>}
+            <div style={{padding: '16px 28px 24px', display: 'flex', gap: '10px'}}>
+              {editBooking && <button type="button" onClick={() => submitChange('DELETE')} disabled={loading} style={{padding: '12px 20px', borderRadius: '12px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: 'rgb(239,68,68)', cursor: 'pointer', fontSize: '13px', fontFamily: "'Inter', sans-serif"}}>Удалить</button>}
+              <button type="button" onClick={() => setShowModal(false)} style={{flex: 1, padding: '12px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '13px', fontFamily: "'Inter', sans-serif"}}>Отмена</button>
+              <button type="submit" disabled={loading} style={{flex: 2, padding: '12px 20px', borderRadius: '12px', background: 'rgba(245,158,11,0.9)', border: 'none', color: 'black', cursor: 'pointer', fontSize: '13px', fontWeight: 600, fontFamily: "'Inter', sans-serif"}}>{loading ? 'Сохранение...' : editBooking ? 'Сохранить' : 'Добавить бронь'}</button>
             </div>
           </form>
         </BookingDialog>
@@ -333,14 +328,14 @@ function BookingDialog({ children, onClose }: { children: React.ReactNode; onClo
   return (
     <dialog
       ref={ref}
-      className="ops-dialog"
+      className={styles.dialog}
       aria-label="Бронирование"
       onCancel={onClose}
       onClick={(e) => {
         if (e.target === ref.current) onClose()
       }}
     >
-      <div>{children}</div>
+      {children}
     </dialog>
   )
 }
