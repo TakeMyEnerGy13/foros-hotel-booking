@@ -14,7 +14,7 @@ export default async function Home() {
     <div id="top" className="hotel">
       <main>
         <HomeHero locale={locale} />
-        <section className="editorial">
+        <section className="home-rooms editorial">
           <div className="section-heading">
             <h2>{ru ? 'Наши номера' : 'Our rooms'}</h2>
             <Link className="pill" href="/rooms">

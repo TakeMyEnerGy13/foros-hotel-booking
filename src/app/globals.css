@@ -460,9 +460,18 @@ a {
 }
 .tile-plaque-name {
   position: relative;
-  padding: 10px 16px 20px 9px;
+  display: grid;
+  gap: 8px;
+  align-content: space-between;
+  padding: 10px 12px 8px 9px;
   transform: translateY(calc(0% - var(--plaque-offset)));
   transition-delay: .09s;
+}
+.tile-rate {
+  justify-self: end;
+  font-size: .76em;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: normal;
 }
 .tile-plaque-top::before,
 .tile-plaque-name::before,
@@ -478,6 +487,9 @@ a {
 .tile-plaque-name::after { top: 6px; right: 9px; }
 @media (prefers-reduced-motion: reduce) {
   .tile-plaque-name { transition-delay: 0s; }
+}
+.home-rooms, .editorial.place {
+  border-bottom: 0;
 }
 .place {
   display: grid;

@@ -6,6 +6,7 @@ type Room = {
   name: string
   nameEn: string
   imageUrl: string
+  price: number
 }
 
 export default function RoomTile({
@@ -21,12 +22,13 @@ export default function RoomTile({
 }) {
   const ru = locale !== 'en'
   const name = ru ? room.name : room.nameEn
+  const rate = room.price.toLocaleString(ru ? 'ru-RU' : 'en-GB') + (ru ? ' ₽ / ночь' : ' ₽ / night')
   const status = ru ? 'Даты заняты' : 'Dates unavailable'
   return (
     <Link
       className={'room-tile' + (unavailable ? ' occupied' : '')}
       href={'/rooms/' + room.id + query}
-      aria-label={unavailable ? name + ' · ' + status : undefined}
+      aria-label={[name, rate, unavailable && status].filter(Boolean).join(' · ')}
     >
       <div className="tile-photo">
         <img src={roomPhotos([room.imageUrl])[0]} alt="" loading="lazy" />
@@ -37,7 +39,10 @@ export default function RoomTile({
       </div>
       <div className="tile-caption">
         <h3 className="tile-title">{name}</h3>
-        <div className="tile-plaque-name" aria-hidden="true">{name}</div>
+        <div className="tile-plaque-name" aria-hidden="true">
+          <span>{name}</span>
+          <span className="tile-rate">{rate}</span>
+        </div>
       </div>
     </Link>
   )
