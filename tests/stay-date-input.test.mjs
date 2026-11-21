@@ -4,7 +4,22 @@ import { createRequire } from 'node:module'
 import { register } from 'ts-node'
 
 register({ skipProject: true, transpileOnly: true, compilerOptions: { module: 'CommonJS' } })
-const { maskStayDate, readStayDate, stayForNights } = createRequire(import.meta.url)('../src/lib/stay.ts')
+const { freeStaysWithin, maskStayDate, readStayDate, stayForNights } = createRequire(import.meta.url)('../src/lib/stay.ts')
+
+test('room search lists continuous free nights within the requested check-in and check-out', () => {
+  const stay = (from, to) => ({ checkIn: '2027-04-' + from, checkOut: '2027-04-' + to })
+  const request = stay(21, 29)
+  assert.deepEqual(freeStaysWithin(request, [stay(18, 21), stay(29, 30)]), [request])
+  assert.deepEqual(freeStaysWithin(request, [stay(28, 30), stay(20, 22)]), [stay(22, 28)])
+  assert.deepEqual(freeStaysWithin(request, [stay(26, 28), stay(22, 24)]), [stay(21, 22), stay(24, 26), stay(28, 29)])
+  assert.deepEqual(freeStaysWithin(request, [stay(24, 29), stay(20, 24), stay(21, 23)]), [])
+  assert.deepEqual(freeStaysWithin(stay(21, 22), []), [stay(21, 22)])
+  assert.deepEqual(freeStaysWithin(stay(21, 22), [stay(20, 25)]), [])
+  const newYear = { checkIn: '2027-12-31', checkOut: '2028-01-03' }
+  assert.deepEqual(freeStaysWithin(newYear, [{ checkIn: '2028-01-01', checkOut: '2028-01-02' }]), [
+    { checkIn: '2027-12-31', checkOut: '2028-01-01' }, { checkIn: '2028-01-02', checkOut: '2028-01-03' },
+  ])
+})
 
 test('a click selects one night and two clicks fill the inclusive range in either direction', () => {
   assert.deepEqual(stayForNights('2026-11-21', '2026-11-21', []), { checkIn: '2026-11-21', checkOut: '2026-11-22' })
