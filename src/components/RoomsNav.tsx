@@ -6,7 +6,7 @@ export default function RoomsNav({ locale, booking = '/#stay' }: { locale: strin
   return (
     <header className="masthead">
       <Link href="/" className="wordmark">
-        {ru ? 'берег радости' : 'shore of joy'}
+        {ru ? 'Берег Радости' : 'Shore of Joy'}
       </Link>
       <nav aria-label={ru ? 'Навигация' : 'Navigation'} className="main-links">
         <Link href="/rooms">{ru ? 'Номера' : 'Rooms'}</Link>

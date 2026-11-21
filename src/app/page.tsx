@@ -37,7 +37,7 @@ export default async function Home() {
         </section>
         <Gallery locale={locale} />
       </main>
-      <HotelFooter locale={locale} home />
+      <HotelFooter locale={locale} />
     </div>
   )
 }

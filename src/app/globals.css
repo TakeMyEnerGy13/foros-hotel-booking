@@ -91,7 +91,6 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  border-bottom: 1px solid var(--ink);
 }
 .wordmark {
   font-size: clamp(23px, 2.2vw, 36px);
@@ -103,6 +102,12 @@ a {
   text-underline-offset: 0.15em;
   white-space: nowrap;
 }
+.masthead .wordmark {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-decoration: none;
+}
 .main-links,
 .nav-end,
 .languages {
@@ -113,7 +118,6 @@ a {
   gap: clamp(16px, 2.5vw, 48px);
 }
 .main-links a:hover,
-.hotel-footer a:hover,
 .room-story > a:hover,
 .search-result a {
   text-decoration: underline;
@@ -139,6 +143,11 @@ a {
   text-underline-offset: 3px;
   color: var(--ink);
 }
+.masthead .languages button[aria-pressed='true'] {
+  font-weight: 600;
+  text-decoration: none;
+}
+.masthead .languages button + button::before { content: none; }
 .pill,
 .solid {
   display: inline-flex;
@@ -208,7 +217,6 @@ a {
 .catalog-heading h1,
 .editorial h2,
 .booking-panel h2,
-.footer-name,
 .operations h1 {
   margin: 0;
   line-height: 0.98;
@@ -284,7 +292,6 @@ a {
   align-items: center;
   gap: clamp(16px, 3.5vw, 65px);
   padding: clamp(22px, 3vw, 49px) var(--gutter);
-  border-bottom: 1px solid var(--ink);
   scroll-margin-top: 12px;
 }
 .stay-search > h2 {
@@ -408,7 +415,6 @@ a {
 }
 .editorial {
   padding: clamp(62px, 7vw, 120px) var(--gutter);
-  border-bottom: 1px solid var(--ink);
 }
 .section-heading {
   display: flex;
@@ -545,12 +551,12 @@ a {
 }
 .home-rooms {
   padding: clamp(54px, 6.94vw, 140px) var(--home-gutter) 0;
-  border-bottom: 0;
 }
 .home-rooms .section-heading {
   margin: 0 0 clamp(24px, 2.92vw, 62px);
 }
 .home-rooms .section-heading h2,
+.catalog-heading h1,
 .home-place h2,
 .home-footer-name {
   font-family: 'Playfair Display', Georgia, serif;
@@ -876,34 +882,15 @@ a {
   border: 1px solid var(--ink);
   border-radius: 50%;
 }
-.hotel-footer {
-  padding: clamp(42px, 6vw, 90px) var(--gutter);
-  display: grid;
-  grid-template-columns: 1.4fr 1fr auto;
-  align-items: start;
-  gap: 25px;
-}
-.hotel-footer .label {
-  display: block;
-  margin-bottom: 17px;
-}
-.footer-name {
-  font-size: clamp(38px, 4.6vw, 80px);
-  display: block;
-}
-.hotel-footer div:nth-child(2) > a {
-  display: block;
-  font-size: 18px;
-}
 .catalog-heading {
   padding: clamp(50px, 6vw, 110px) var(--gutter) clamp(32px, 4vw, 75px);
-  border-bottom: 1px solid var(--ink);
 }
 .catalog-heading h1 {
   font-size: clamp(66px, 10vw, 170px);
 }
 .catalog {
   padding-top: clamp(35px, 4vw, 75px);
+  padding-bottom: 0;
 }
 .search-result {
   margin-bottom: 28px;
@@ -1051,6 +1038,9 @@ a {
   .wordmark {
     font-size: 26px;
   }
+  .masthead .wordmark {
+    font-size: clamp(20px, 6.3vw, 26px);
+  }
   .nav-end {
     display: contents;
   }
@@ -1069,7 +1059,6 @@ a {
     grid-row: 2;
     justify-content: space-between;
     padding-right: 68px;
-    border-top: 1px solid var(--line);
     margin-top: 13px;
     padding: 10px 68px 10px 0;
   }
@@ -1150,12 +1139,8 @@ a {
   .tile-title, .tile-plaque-name { font-size: 20px; }
   .tile-plaque-top { font-size: 12px; }
   .tile-action { padding-inline: 8px; }
-  .room-spread,
-  .hotel-footer {
+  .room-spread {
     grid-template-columns: 1fr;
-  }
-  .hotel-footer > .pill {
-    justify-self: start;
   }
   .all-rooms-link { min-height: 46px; min-width: 112px; padding-inline: 16px; font-size: 12px; }
   .home-rooms .room-grid { gap: 18px 12px; }
