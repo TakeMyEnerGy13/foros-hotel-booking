@@ -991,9 +991,6 @@ a {
   margin: 0;
   font: 500 clamp(21px, 1.8vw, 32px)/1.2 Inter, Arial, sans-serif;
 }
-.room-facts > div:nth-child(-n + 2) dd {
-  font: 500 clamp(25px, 2.5vw, 46px)/1.16 'Playfair Display', Georgia, serif;
-}
 .booking-panel {
   border: 1px solid var(--ink);
   padding: clamp(19px, 2.7vw, 42px);
