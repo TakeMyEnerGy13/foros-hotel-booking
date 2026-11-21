@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 import { prisma } from './prisma'
 import { hotelToday, overlapFilter, validStay } from './stay'
+import { activeBookings, bookingReceipt } from './booking-hold'
 
 const id = z.number().int().positive().max(2147483647)
 const fields = z.object({
@@ -27,6 +28,30 @@ function validId(value: string) {
   return parsed.data
 }
 
+async function lockRoom(tx: Prisma.TransactionClient, roomId: number) {
+  const rooms = await tx.$queryRaw<{ id: number }[]> `SELECT id FROM "Room" WHERE id = ${roomId} FOR UPDATE`
+  if (!rooms.length) throw new BookingError(404, 'Номер не найден')
+}
+
+async function lockedBooking(tx: Prisma.TransactionClient, id: number) {
+  const booking = await tx.booking.findUnique({ where: { id }, select: { roomId: true } })
+  if (!booking) return null
+  await lockRoom(tx, booking.roomId)
+  return tx.booking.findUnique({ where: { id }, select: { roomId: true, status: true, createdAt: true } })
+}
+
+export async function confirmPendingBooking(id: number) {
+  await prisma.$transaction(async tx => {
+    const current = await lockedBooking(tx, id)
+    if (current) {
+      await tx.booking.updateMany({
+        where: { id, status: { in: ['held', 'pending'] }, ...activeBookings() },
+        data: { status: 'confirmed' },
+      })
+    }
+  })
+}
+
 export async function saveBooking(request: Request, admin: boolean, bookingId?: string) {
   try {
     const body: unknown = await request.json().catch(() => null)
@@ -39,16 +64,16 @@ export async function saveBooking(request: Request, admin: boolean, bookingId?: 
     }
     const targetId = bookingId === undefined ? undefined : validId(bookingId)
     const saved = await prisma.$transaction(async tx => {
-      const old = targetId === undefined ? null : await tx.booking.findUnique({
-        where: { id: targetId }, select: { roomId: true },
-      })
+      const old = targetId === undefined ? null : await lockedBooking(tx, targetId)
       if (targetId !== undefined && !old) throw new BookingError(404, 'Бронь не найдена')
       const roomId = old?.roomId ?? ('roomId' in data && typeof data.roomId === 'number' ? data.roomId : undefined)
       if (!roomId) throw new BookingError(400, 'Выберите номер')
-      // Every writer checks availability under the same room lock, including reactivation.
-      const rooms = await tx.$queryRaw<{ id: number }[]> `SELECT id FROM "Room" WHERE id = ${roomId} FOR UPDATE`
-      if (!rooms.length) throw new BookingError(404, 'Номер не найден')
-      const status = 'status' in data ? data.status : 'pending'
+      if (!old) await lockRoom(tx, roomId)
+      let status: string = 'status' in data ? data.status : 'held'
+      if (old?.status === 'held' && status !== 'cancelled') {
+        if (bookingReceipt(old).status === 'expired') throw new BookingError(409, 'Срок резерва истёк. Проверьте даты и создайте новую бронь.')
+        if (status === 'pending') status = 'held'
+      }
       if (status !== 'cancelled') {
         const conflict = await tx.booking.findFirst({
           where: { roomId, ...overlapFilter(data.checkIn, data.checkOut), id: targetId === undefined ? undefined : { not: targetId } },
@@ -62,9 +87,10 @@ export async function saveBooking(request: Request, admin: boolean, bookingId?: 
         ...('notes' in data && { notes: data.notes }),
       }
       if (targetId !== undefined) return tx.booking.update({ where: { id: targetId }, data: values })
-      return tx.booking.create({ data: { ...values, roomId } })
+      return tx.booking.create({ data: { ...values, roomId, createdAt: new Date() } })
     }, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted })
-    return Response.json(admin ? saved : { id: saved.id, status: saved.status })
+    const receipt = bookingReceipt(saved)
+    return Response.json(admin ? receipt : { id: saved.id, status: receipt.status, holdExpiresAt: receipt.holdExpiresAt })
   } catch (error) {
     if (error instanceof BookingError) return Response.json({ error: error.message }, { status: error.status })
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {

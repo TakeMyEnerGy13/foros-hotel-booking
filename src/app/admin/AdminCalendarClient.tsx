@@ -15,6 +15,7 @@ interface Booking {
   guestEmail: string
   notes: string
   status: string
+  holdExpiresAt: string | null
   room: { name: string }
 }
 
@@ -89,6 +90,8 @@ export default function AdminCalendarClient() {
       (b) =>
         b.roomId === roomId &&
         b.status !== 'cancelled' &&
+        b.status !== 'expired' &&
+        (!b.holdExpiresAt || Date.parse(b.holdExpiresAt) > now.getTime()) &&
         key >= b.checkIn.slice(0, 10) &&
         key < b.checkOut.slice(0, 10)
     )

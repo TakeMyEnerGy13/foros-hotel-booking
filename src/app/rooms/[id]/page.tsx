@@ -8,6 +8,7 @@ import { PhotoStage } from '@/components/Gallery'
 import HotelFooter from '@/components/HotelFooter'
 import { roomPhotos } from '@/lib/hotel-photos'
 import RoomsNav from '@/components/RoomsNav'
+import { activeBookings } from '@/lib/booking-hold'
 
 export default async function RoomPage({
   params,
@@ -26,7 +27,7 @@ export default async function RoomPage({
   const room = await prisma.room.findUnique({
     where: { id: parseInt(id) },
     include: {
-      bookings: { where: { status: { not: 'cancelled' } }, select: { checkIn: true, checkOut: true } },
+      bookings: { where: activeBookings(), select: { checkIn: true, checkOut: true } },
     },
   })
 
