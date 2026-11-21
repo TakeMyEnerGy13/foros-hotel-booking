@@ -1,6 +1,8 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import styles from './AdminAppearance.module.css'
 import { calendarDay } from '@/lib/stay'
 
 interface Booking {
@@ -21,7 +23,20 @@ interface Room {
   name: string
 }
 
-const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
+const MONTHS = [
+  'Январь',
+  'Февраль',
+  'Март',
+  'Апрель',
+  'Май',
+  'Июнь',
+  'Июль',
+  'Август',
+  'Сентябрь',
+  'Октябрь',
+  'Ноябрь',
+  'Декабрь',
+]
 
 export default function AdminCalendarClient() {
   const now = new Date()
@@ -31,14 +46,24 @@ export default function AdminCalendarClient() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [editBooking, setEditBooking] = useState<Booking | null>(null)
   const [addRoomId, setAddRoomId] = useState<number | null>(null)
-  const [form, setForm] = useState({checkIn: '', checkOut: '', guestName: '', guestPhone: '', notes: '', status: 'confirmed'})
+  const [form, setForm] = useState({
+    checkIn: '',
+    checkOut: '',
+    guestName: '',
+    guestPhone: '',
+    notes: '',
+    status: 'confirmed',
+  })
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const [error, setError] = useState('')
   const loadData = useCallback(async () => {
     try {
-      const [roomsResponse, bookingsResponse] = await Promise.all([fetch('/api/rooms'), fetch('/api/admin/bookings')])
+      const [roomsResponse, bookingsResponse] = await Promise.all([
+        fetch('/api/rooms'),
+        fetch('/api/admin/bookings'),
+      ])
       if (bookingsResponse.status === 401) {
         window.location.replace('/admin-login')
         return
@@ -51,22 +76,36 @@ export default function AdminCalendarClient() {
     }
   }, [])
 
-  useEffect(() => { void loadData() }, [loadData])
+  useEffect(() => {
+    void loadData()
+  }, [loadData])
 
   const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const days = Array.from({length: daysInMonth}, (_, i) => i + 1)
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
 
   const getBookingForDay = (roomId: number, day: number) => {
     const key = calendarDay(new Date(year, month, day))
-    return bookings.find(b => b.roomId === roomId && b.status !== 'cancelled' &&
-      key >= b.checkIn.slice(0, 10) && key < b.checkOut.slice(0, 10))
+    return bookings.find(
+      (b) =>
+        b.roomId === roomId &&
+        b.status !== 'cancelled' &&
+        key >= b.checkIn.slice(0, 10) &&
+        key < b.checkOut.slice(0, 10)
+    )
   }
 
   const openAdd = (roomId: number, day: number) => {
     setError('')
     setEditBooking(null)
     setAddRoomId(roomId)
-    setForm({checkIn: calendarDay(new Date(year, month, day)), checkOut: calendarDay(new Date(year, month, day + 1)), guestName: '', guestPhone: '', notes: '', status: 'confirmed'})
+    setForm({
+      checkIn: calendarDay(new Date(year, month, day)),
+      checkOut: calendarDay(new Date(year, month, day + 1)),
+      guestName: '',
+      guestPhone: '',
+      notes: '',
+      status: 'confirmed',
+    })
     setShowModal(true)
   }
 
@@ -75,8 +114,8 @@ export default function AdminCalendarClient() {
     setEditBooking(booking)
     setAddRoomId(null)
     setForm({
-      checkIn: booking.checkIn.slice(0,10),
-      checkOut: booking.checkOut.slice(0,10),
+      checkIn: booking.checkIn.slice(0, 10),
+      checkOut: booking.checkOut.slice(0, 10),
       guestName: booking.guestName,
       guestPhone: booking.guestPhone || '',
       notes: booking.notes || '',
@@ -92,10 +131,16 @@ export default function AdminCalendarClient() {
     try {
       const url = editBooking ? '/api/admin/bookings/' + editBooking.id : '/api/admin/bookings'
       const response = await fetch(url, {
-        method, headers: { 'Content-Type': 'application/json' },
-        body: method === 'DELETE' ? undefined : JSON.stringify({
-          ...form, roomId: editBooking?.roomId ?? addRoomId, guestEmail: editBooking?.guestEmail ?? '',
-        }),
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body:
+          method === 'DELETE'
+            ? undefined
+            : JSON.stringify({
+                ...form,
+                roomId: editBooking?.roomId ?? addRoomId,
+                guestEmail: editBooking?.guestEmail ?? '',
+              }),
       })
       if (!response.ok) {
         const detail = await response.json().catch(() => null)
@@ -111,8 +156,18 @@ export default function AdminCalendarClient() {
     }
   }
 
-  const prevMonth = () => { if (month === 0) { setMonth(11); setYear(y => y-1) } else setMonth(m => m-1) }
-  const nextMonth = () => { if (month === 11) { setMonth(0); setYear(y => y+1) } else setMonth(m => m+1) }
+  const prevMonth = () => {
+    if (month === 0) {
+      setMonth(11)
+      setYear((y) => y - 1)
+    } else setMonth((m) => m - 1)
+  }
+  const nextMonth = () => {
+    if (month === 11) {
+      setMonth(0)
+      setYear((y) => y + 1)
+    } else setMonth((m) => m + 1)
+  }
 
   const inputStyle = {
     width: '100%',
@@ -137,25 +192,26 @@ export default function AdminCalendarClient() {
   }
 
   return (
-    <div style={{minHeight: '100vh', background: '#0f0f0f', color: 'white', fontFamily: "'Inter', sans-serif"}}>
-      <div style={{borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+    <main className={styles.surface} style={{minHeight: '100vh', background: '#0f0f0f', color: 'white', fontFamily: "'Inter', sans-serif"}}>
+      <div className={styles.bar} style={{borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
-          <img src="/logo.png" style={{width: '40px', height: '40px'}} />
+          <Image src="/logo.png" alt="" width={40} height={40} />
           <div>
             <h1 style={{fontFamily: "'DM Serif Display', serif", fontSize: '22px', margin: 0}}>Берег Радости</h1>
             <p style={{fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0}}>Панель администратора</p>
           </div>
         </div>
         <div style={{display: 'flex', gap: '12px'}}>
-          <Link href="/" style={{padding: '8px 16px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '13px'}}>На сайт</Link>
+          <Link href="/admin/bookings" className={styles.navLink}>Все бронирования</Link>
+          <Link href="/" className={styles.navLink}>На сайт</Link>
         </div>
       </div>
 
-      <div style={{padding: '24px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+      <div className={styles.bar} style={{padding: '24px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
-          <button onClick={prevMonth} style={{width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', fontSize: '16px'}}>←</button>
+          <button aria-label="Предыдущий месяц" onClick={prevMonth} style={{width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', fontSize: '16px'}}>←</button>
           <h2 style={{fontFamily: "'DM Serif Display', serif", fontSize: '28px', margin: 0}}>{MONTHS[month]} {year}</h2>
-          <button onClick={nextMonth} style={{width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', fontSize: '16px'}}>→</button>
+          <button aria-label="Следующий месяц" onClick={nextMonth} style={{width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', fontSize: '16px'}}>→</button>
         </div>
         <div style={{display: 'flex', gap: '16px', fontSize: '12px', color: 'rgba(255,255,255,0.4)'}}>
           <span style={{display: 'flex', alignItems: 'center', gap: '6px'}}><span style={{width: '12px', height: '12px', borderRadius: '3px', background: 'rgba(245,158,11,0.7)', display: 'inline-block'}}></span>Занято</span>
@@ -186,14 +242,17 @@ export default function AdminCalendarClient() {
                   const booking = getBookingForDay(room.id, d)
                   const isToday = new Date(year, month, d).toDateString() === new Date().toDateString()
                   return (
-                    <td key={d} onClick={() => booking ? openEdit(booking) : openAdd(room.id, d)} style={{padding: '3px', cursor: 'pointer', textAlign: 'center'}}>
-                      <div
+                    <td key={d} style={{padding: '3px', textAlign: 'center'}}>
+                      <button
+                        type="button"
+                        aria-label={room.name + ', ' + calendarDay(new Date(year, month, d)) + ', ' + (booking?.guestName ?? 'свободно')}
+                        onClick={() => booking ? openEdit(booking) : openAdd(room.id, d)}
                         style={{width: '100%', height: '34px', borderRadius: '6px', background: booking ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.03)', border: isToday ? '1px solid rgba(245,158,11,0.6)' : '1px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s'}}
                         onMouseEnter={e => (e.currentTarget.style.background = booking ? 'rgba(245,158,11,0.45)' : 'rgba(255,255,255,0.08)')}
                         onMouseLeave={e => (e.currentTarget.style.background = booking ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.03)')}
                       >
                         {booking && <span style={{fontSize: '9px', color: 'rgba(255,255,255,0.9)', overflow: 'hidden', maxWidth: '26px', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{booking.guestName.split(' ')[0]}</span>}
-                      </div>
+                      </button>
                     </td>
                   )
                 })}
@@ -205,41 +264,41 @@ export default function AdminCalendarClient() {
 
       {error && !showModal && <p role="alert" className="px-8 text-red-300">{error}</p>}
       {showModal && (
-        <div style={{position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)'}} onClick={() => setShowModal(false)}>
-          <div onClick={e => e.stopPropagation()} style={{width: '100%', maxWidth: '460px', background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', overflow: 'hidden'}}>
+        <BookingDialog onClose={() => setShowModal(false)}>
+          <form onSubmit={event => { event.preventDefault(); void submitChange(editBooking ? 'PUT' : 'POST') }}>
             <div style={{padding: '24px 28px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <div>
                 <h3 style={{fontFamily: "'DM Serif Display', serif", fontSize: '20px', margin: 0}}>{editBooking ? 'Редактировать бронь' : 'Новая бронь'}</h3>
                 {(editBooking || addRoomId) && <p style={{fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0 0'}}>{editBooking ? editBooking.room.name : rooms.find(r => r.id === addRoomId)?.name}</p>}
               </div>
-              <button onClick={() => setShowModal(false)} style={{background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '22px', cursor: 'pointer'}}>×</button>
+              <button type="button" aria-label="Закрыть" onClick={() => setShowModal(false)} style={{background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '22px', cursor: 'pointer'}}>×</button>
             </div>
             <div style={{padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '16px'}}>
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px'}}>
                 <div>
-                  <label style={labelStyle}>Дата заезда</label>
-                  <input type="date" value={form.checkIn} onChange={e => setForm(f => ({...f, checkIn: e.target.value}))} style={{...inputStyle, colorScheme: 'dark'}} />
+                  <label htmlFor="booking-check-in" style={labelStyle}>Дата заезда</label>
+                  <input id="booking-check-in" required type="date" value={form.checkIn} onChange={e => setForm(f => ({...f, checkIn: e.target.value}))} style={{...inputStyle, colorScheme: 'dark'}} />
                 </div>
                 <div>
-                  <label style={labelStyle}>Дата выезда</label>
-                  <input type="date" value={form.checkOut} onChange={e => setForm(f => ({...f, checkOut: e.target.value}))} style={{...inputStyle, colorScheme: 'dark'}} />
+                  <label htmlFor="booking-check-out" style={labelStyle}>Дата выезда</label>
+                  <input id="booking-check-out" required type="date" value={form.checkOut} onChange={e => setForm(f => ({...f, checkOut: e.target.value}))} style={{...inputStyle, colorScheme: 'dark'}} />
                 </div>
               </div>
               <div>
-                <label style={labelStyle}>Имя гостя</label>
-                <input type="text" placeholder="Иван Иванов" value={form.guestName} onChange={e => setForm(f => ({...f, guestName: e.target.value}))} style={inputStyle} />
+                <label htmlFor="booking-guest" style={labelStyle}>Имя гостя</label>
+                <input id="booking-guest" required type="text" placeholder="Иван Иванов" value={form.guestName} onChange={e => setForm(f => ({...f, guestName: e.target.value}))} style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>Телефон</label>
-                <input type="text" placeholder="+7 (978) 000-00-00" value={form.guestPhone} onChange={e => setForm(f => ({...f, guestPhone: e.target.value}))} style={inputStyle} />
+                <label htmlFor="booking-phone" style={labelStyle}>Телефон</label>
+                <input id="booking-phone" type="tel" placeholder="+7 (978) 000-00-00" value={form.guestPhone} onChange={e => setForm(f => ({...f, guestPhone: e.target.value}))} style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>Заметка</label>
-                <textarea placeholder="Пожелания, комментарии..." value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} style={{...inputStyle, height: '80px', resize: 'none'}} />
+                <label htmlFor="booking-notes" style={labelStyle}>Заметка</label>
+                <textarea id="booking-notes" placeholder="Пожелания, комментарии..." value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} style={{...inputStyle, height: '80px', resize: 'none'}} />
               </div>
               <div>
-                <label style={labelStyle}>Статус</label>
-                <select value={form.status} onChange={e => setForm(f => ({...f, status: e.target.value}))} style={{...inputStyle, cursor: 'pointer'}}>
+                <label htmlFor="booking-status" style={labelStyle}>Статус</label>
+                <select id="booking-status" value={form.status} onChange={e => setForm(f => ({...f, status: e.target.value}))} style={{...inputStyle, cursor: 'pointer'}}>
                   <option value="confirmed">Подтверждена</option>
                   <option value="pending">Ожидает</option>
                   <option value="cancelled">Отменена</option>
@@ -248,13 +307,35 @@ export default function AdminCalendarClient() {
             </div>
             {error && <p role="alert" className="px-7 text-red-300">{error}</p>}
             <div style={{padding: '16px 28px 24px', display: 'flex', gap: '10px'}}>
-              {editBooking && <button onClick={() => submitChange('DELETE')} disabled={loading} style={{padding: '12px 20px', borderRadius: '12px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: 'rgb(239,68,68)', cursor: 'pointer', fontSize: '13px', fontFamily: "'Inter', sans-serif"}}>Удалить</button>}
-              <button onClick={() => setShowModal(false)} style={{flex: 1, padding: '12px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '13px', fontFamily: "'Inter', sans-serif"}}>Отмена</button>
-              <button onClick={() => submitChange(editBooking ? 'PUT' : 'POST')} disabled={loading} style={{flex: 2, padding: '12px 20px', borderRadius: '12px', background: 'rgba(245,158,11,0.9)', border: 'none', color: 'black', cursor: 'pointer', fontSize: '13px', fontWeight: 600, fontFamily: "'Inter', sans-serif"}}>{loading ? 'Сохранение...' : editBooking ? 'Сохранить' : 'Добавить бронь'}</button>
+              {editBooking && <button type="button" onClick={() => submitChange('DELETE')} disabled={loading} style={{padding: '12px 20px', borderRadius: '12px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: 'rgb(239,68,68)', cursor: 'pointer', fontSize: '13px', fontFamily: "'Inter', sans-serif"}}>Удалить</button>}
+              <button type="button" onClick={() => setShowModal(false)} style={{flex: 1, padding: '12px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '13px', fontFamily: "'Inter', sans-serif"}}>Отмена</button>
+              <button type="submit" disabled={loading} style={{flex: 2, padding: '12px 20px', borderRadius: '12px', background: 'rgba(245,158,11,0.9)', border: 'none', color: 'black', cursor: 'pointer', fontSize: '13px', fontWeight: 600, fontFamily: "'Inter', sans-serif"}}>{loading ? 'Сохранение...' : editBooking ? 'Сохранить' : 'Добавить бронь'}</button>
             </div>
-          </div>
-        </div>
+          </form>
+        </BookingDialog>
       )}
-    </div>
+    </main>
+  )
+}
+
+function BookingDialog({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null)
+  useEffect(() => {
+    const dialog = ref.current
+    dialog?.showModal()
+    return () => dialog?.close()
+  }, [])
+  return (
+    <dialog
+      ref={ref}
+      className={styles.dialog}
+      aria-label="Бронирование"
+      onCancel={onClose}
+      onClick={(e) => {
+        if (e.target === ref.current) onClose()
+      }}
+    >
+      {children}
+    </dialog>
   )
 }

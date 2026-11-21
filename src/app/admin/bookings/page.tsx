@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import styles from '../AdminAppearance.module.css'
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '../auth'
 import { revalidatePath } from 'next/cache'
@@ -11,7 +12,7 @@ export default async function AdminBookingsPage() {
   })
 
   return (
-    <main className="min-h-screen bg-gray-100">
+    <main className={styles.bookingList + ' min-h-screen bg-gray-100'}>
       <nav className="bg-gray-900 text-white px-8 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">⚙️ Панель администратора</h1>
         <Link href="/" className="text-gray-400 hover:text-white text-sm">← На сайт</Link>
@@ -28,7 +29,7 @@ export default async function AdminBookingsPage() {
             Бронирований пока нет
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b">
                 <tr>
