@@ -90,7 +90,7 @@
 
 .title { text-align: center; padding: 0 16px; }
 .title img { width: 208px; height: auto; margin: 0 auto 32px; filter: drop-shadow(0 25px 25px rgb(0 0 0 / 20%)); }
-.title h1 { margin: 0 0 20px; font: 400 96px/1.25 'DM Serif Display', serif; text-shadow: 0 2px 20px rgb(0 0 0 / 40%); }
+.title h1 { margin: 0 0 20px; font: 400 96px/1.25 'Playfair Display', Georgia, serif; text-shadow: 0 2px 20px rgb(0 0 0 / 40%); }
 .title p { color: rgb(255 255 255 / 70%); font-size: 18px; font-weight: 300; }
 
 .tools {

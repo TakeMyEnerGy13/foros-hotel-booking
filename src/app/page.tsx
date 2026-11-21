@@ -18,7 +18,7 @@ export default async function Home() {
           <div className="section-heading">
             <h2>{ru ? 'Наши номера' : 'Our rooms'}</h2>
             <Link className="pill" href="/rooms">
-              {ru ? 'Все номера' : 'All rooms'} ↗
+              {ru ? 'Все номера' : 'All rooms'}
             </Link>
           </div>
           <div className="room-grid">
@@ -27,19 +27,17 @@ export default async function Home() {
             ))}
           </div>
         </section>
-        <section className="place editorial">
-          <h2>{ru ? 'Форос' : 'Foros'}</h2>
-          <div>
-            <p>
-              {ru
-                ? 'На южном берегу Крыма, между Чёрным морем и Крымскими горами.'
-                : 'On the southern coast of Crimea, between the Black Sea and the Crimean Mountains.'}
-            </p>
-          </div>
+        <section className="home-place" aria-labelledby="foros-title">
+          <h2 id="foros-title">{ru ? 'Форос' : 'Foros'}</h2>
+          <p>
+            {ru
+              ? 'У Фороса свой рисунок и свои краски. Светлый камень гор, густая зелень парков и глубокая синева моря вместе складываются в пейзаж, который легко узнать даже на старой чёрно-белой открытке — по одному лишь силуэту.'
+              : 'Foros has a palette and an outline of its own. Pale mountain rock, deep green parkland and the blue of the sea make a landscape you could recognise even on an old black-and-white postcard, just by its silhouette.'}
+          </p>
         </section>
         <Gallery locale={locale} />
       </main>
-      <HotelFooter locale={locale} />
+      <HotelFooter locale={locale} home />
     </div>
   )
 }

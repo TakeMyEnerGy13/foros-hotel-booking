@@ -118,27 +118,32 @@ export default function Gallery({ locale = 'ru' }: { locale?: string }) {
   const [current, setCurrent] = useState(0)
   const change = (n: number) => setCurrent((i) => (i + n + coastPhotos.length) % coastPhotos.length)
   const caption = (i: number) => (ru ? coastPhotos[i].ru : coastPhotos[i].en)
+  const captions = ru
+    ? ['', 'Открыт солнцу', 'На самом юге Крыма', 'У подножия гор']
+    : ['', 'Open to the sun', 'At the southern tip of Crimea', 'At the foot of the mountains']
   return (
-    <section id="gallery" className="editorial gallery-section">
-      <div className="section-heading">
-        <h2>{ru ? 'Фотогалерея' : 'Photographs'}</h2>
-      </div>
-      <div className="gallery-strip">
-        {coastPhotos.map((p, i) => (
-          <button
-            key={p.src}
-            onClick={() => {
-              setCurrent(i)
-              dialog.current?.showModal()
-            }}
-          >
-            <img loading="lazy" src={p.src} alt={caption(i)} />
-          </button>
+    <section id="gallery" className="coast-gallery" aria-label={ru ? 'Фотогалерея Фороса' : 'Photographs of Foros'}>
+      <div className="coast-gallery-grid">
+        {coastPhotos.slice(0, captions.length).map((photo, i) => (
+          <figure key={photo.src}>
+            {i === 1 && <figcaption>{captions[i]}</figcaption>}
+            <button
+              type="button"
+              onClick={() => {
+                setCurrent(i)
+                dialog.current?.showModal()
+              }}
+            >
+              <img loading="lazy" src={photo.src} alt={caption(i)} />
+            </button>
+            {i > 1 && <figcaption>{captions[i]}</figcaption>}
+          </figure>
         ))}
       </div>
       <dialog
         className="lightbox"
         ref={dialog}
+        aria-label={ru ? 'Фотогалерея Фороса' : 'Photographs of Foros'}
         onClick={(e) => {
           if (e.target === dialog.current) dialog.current.close()
         }}

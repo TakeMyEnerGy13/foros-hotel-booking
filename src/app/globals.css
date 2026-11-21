@@ -1,6 +1,13 @@
 @import 'tailwindcss' source('../');
 
 @font-face {
+  font-family: 'Playfair Display';
+  src: url('/fonts/playfair-display.woff2') format('woff2');
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+@font-face {
   font-family: Inter;
   src: url('/fonts/inter-cyrillic.woff2') format('woff2');
   font-weight: 400 700;
@@ -361,8 +368,7 @@ a {
   margin-bottom: clamp(28px, 3.4vw, 56px);
 }
 .section-heading h2,
-.room-story h2,
-.place h2 {
+.room-story h2 {
   font-size: clamp(49px, 5.5vw, 106px);
 }
 .room-grid {
@@ -398,8 +404,7 @@ a {
   aspect-ratio: 1;
   overflow: hidden;
 }
-.tile-photo img,
-.gallery-strip img {
+.tile-photo img {
   display: block;
   width: 100%;
   height: 100%;
@@ -488,16 +493,56 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .tile-plaque-name { transition-delay: 0s; }
 }
-.home-rooms, .editorial.place {
+.home-rooms {
+  padding: clamp(54px, 6.94vw, 140px) clamp(20px, 2.71vw, 70px) 0;
   border-bottom: 0;
 }
-.place {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 32px;
+.home-rooms .section-heading {
+  margin: 0 .49vw clamp(24px, 2.92vw, 62px);
 }
-.place p,
+.home-rooms .section-heading h2,
+.home-place h2,
+.home-footer-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+.home-rooms .section-heading h2 {
+  font-size: clamp(36px, 4.92vw, 100px);
+  line-height: 1.1;
+}
+.home-rooms .section-heading .pill {
+  min-width: clamp(100px, 9.17vw, 145px);
+}
+.home-rooms .room-grid {
+  column-gap: clamp(6px, .42vw, 12px);
+}
+.home-rooms .tile-title {
+  padding-top: clamp(12px, 1.74vw, 34px);
+  font-size: clamp(18px, 1.58vw, 29px);
+  letter-spacing: normal;
+}
+.home-rooms .tile-caption {
+  min-height: clamp(64px, 5vw, 94px);
+}
+.home-place {
+  display: grid;
+  grid-template-columns: 51.25% 1fr;
+  align-items: start;
+  margin: clamp(76px, 13.6vw, 255px) clamp(20px, 2.71vw, 70px) 0;
+}
+.home-place h2 {
+  margin: 0;
+  font-size: clamp(56px, 6.95vw, 130px);
+  line-height: .94;
+}
+.home-place p {
+  max-width: min(40.42vw, 42rem);
+  margin: .68vw 0 0;
+  color: var(--note);
+  font-size: clamp(18px, 1.59vw, 26px);
+  line-height: 1.5;
+}
 .room-story > p {
   margin: 0;
   color: var(--note);
@@ -505,25 +550,82 @@ a {
   max-width: 45ch;
   font-size: clamp(18px, 1.6vw, 23px);
 }
-.gallery-strip {
+.coast-gallery {
+  margin: clamp(80px, 13.3vw, 250px) 9.1vw 0 clamp(20px, 2.71vw, 70px);
+}
+.coast-gallery-grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: clamp(220px, 30%, 590px);
-  gap: 20px;
-  overflow: auto;
-  scroll-snap-type: x proximity;
-  scrollbar-color: var(--ink) var(--linen);
-  padding-bottom: 12px;
+  grid-template-columns: 600fr 70fr 133fr 50fr 404fr 13fr;
+  row-gap: clamp(24px, 3.47vw, 70px);
 }
-.gallery-strip button {
+.coast-gallery-grid figure {
+  margin: 0;
+  min-width: 0;
+}
+.coast-gallery-grid figure:nth-child(1) { grid-column: 1 / 4; }
+.coast-gallery-grid figure:nth-child(2) {
+  grid-column: 5 / 6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+}
+.coast-gallery-grid figure:nth-child(3) { grid-column: 1 / 2; }
+.coast-gallery-grid figure:nth-child(4) { grid-column: 3 / -1; text-align: right; }
+.coast-gallery-grid button,
+.coast-gallery-grid img {
   display: block;
-  text-align: left;
-  scroll-snap-align: start;
+  width: 100%;
 }
-.gallery-strip img {
-  aspect-ratio: 1.65;
+.coast-gallery-grid img { aspect-ratio: 803 / 487; object-fit: cover; }
+.coast-gallery-grid figure:nth-child(n + 3) img { aspect-ratio: 10 / 7; }
+.coast-gallery-grid figcaption {
+  color: var(--note);
+  font-size: clamp(20px, 2.78vw, 50px);
+  font-weight: 700;
+  line-height: 1.1;
+}
+.coast-gallery-grid button + figcaption { margin-top: clamp(15px, 2.7vw, 54px); }
+.home-footer {
+  margin-top: clamp(88px, 15.8vw, 285px);
+  padding: 0 clamp(20px, 2.71vw, 70px) clamp(34px, 3.2vw, 70px);
+}
+.home-footer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+}
+.home-footer-mark {
+  display: block;
+  width: clamp(140px, 22.92vw, 420px);
   height: auto;
-  border: 1px solid var(--ink);
+}
+.footer-contact {
+  display: grid;
+  gap: 10px;
+  font-style: normal;
+  justify-items: start;
+}
+.footer-contact span { font-size: 14px; color: var(--muted); }
+.footer-contact a {
+  font-size: clamp(16px, 1.7vw, 30px);
+  letter-spacing: -.025em;
+  text-decoration: none;
+}
+.footer-contact a:hover, .footer-contact a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+.footer-email { justify-items: end; text-align: right; }
+.home-footer-name {
+  display: block;
+  margin-top: clamp(36px, 2.9vw, 72px);
+  font-size: 11.1vw;
+  line-height: 1.05;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
 }
 .lightbox {
   position: fixed;
@@ -830,7 +932,6 @@ a {
     font-size: 12px;
   }
   .section-heading h2,
-  .place h2,
   .room-story h2 {
     font-size: clamp(42px, 10.2vw, 62px);
   }
@@ -840,7 +941,6 @@ a {
   .tile-title, .tile-plaque-name { font-size: 20px; }
   .tile-plaque-top { font-size: 12px; }
   .tile-action { padding-inline: 8px; }
-  .place,
   .room-spread,
   .hotel-footer {
     grid-template-columns: 1fr;
@@ -848,10 +948,23 @@ a {
   .hotel-footer > .pill {
     justify-self: start;
   }
-  .gallery-strip {
-    grid-auto-columns: 79%;
-    gap: 14px;
-  }
+  .home-rooms .section-heading { margin-inline: 0; }
+  .home-rooms .section-heading .pill { min-width: 0; flex-shrink: 0; }
+  .home-rooms .room-grid { gap: 18px 12px; }
+  .home-rooms .tile-caption { min-height: 0; }
+  .home-place { grid-template-columns: 1fr; gap: 20px; }
+  .home-place p { margin: 0; max-width: 42ch; }
+  .coast-gallery { margin-inline: 20px; }
+  .coast-gallery-grid { grid-template-columns: 1fr 1fr; gap: 32px 16px; }
+  .coast-gallery-grid figure:nth-child(1) { grid-column: 1 / -1; }
+  .coast-gallery-grid figure:nth-child(2) { grid-column: 1 / -1; width: 76%; justify-self: end; }
+  .coast-gallery-grid figure:nth-child(3) { grid-column: 1; }
+  .coast-gallery-grid figure:nth-child(4) { grid-column: 2; }
+  .home-footer-row { grid-template-columns: 1fr 1fr; gap: 30px 14px; }
+  .home-footer-mark { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+  .footer-contact { gap: 4px; }
+  .footer-contact span { font-size: 12px; }
+  .home-footer-name { margin-inline: -8px; }
   .room-spread {
     gap: 36px;
   }
@@ -867,6 +980,10 @@ a {
   .catalog-heading h1 {
     font-size: clamp(52px, 14vw, 80px);
   }
+}
+@media (max-width: 380px) {
+  .home-footer-row { grid-template-columns: 1fr; gap: 20px; }
+  .footer-contact { justify-items: center; text-align: center; }
 }
 @media (prefers-reduced-motion: reduce) {
   *,

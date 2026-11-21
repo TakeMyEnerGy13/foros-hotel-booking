@@ -38,8 +38,8 @@ export function roomPhotos(urls: string[]) {
 
 export const coastPhotos = [
   { src: '/Main.png', ru: 'Панорама Фороса', en: 'Foros panorama' },
-  { src: '/photos/photo-1582719478250-c89cae4dc85b.webp', ru: 'Утро в номере', en: 'Morning indoors' },
   { src: '/photos/photo-1473116763249-2faaef81ccda.webp', ru: 'Вечер у моря', en: 'Evening by the sea' },
+  { src: '/photos/photo-1582719478250-c89cae4dc85b.webp', ru: 'Утро в номере', en: 'Morning indoors' },
   { src: '/photos/photo-1505118380757-91f5f5632de0.webp', ru: 'Линия прибоя', en: 'The waterline' },
   {
     src: '/photos/photo-1500534314209-a25ddb2bd429.webp',
