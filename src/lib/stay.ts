@@ -1,3 +1,5 @@
+import { activeBookings } from './booking-hold'
+
 export interface Stay {
   checkIn: string
   checkOut: string
@@ -81,5 +83,5 @@ export function stayForNights(anchor: string, night: string, bookings: Stay[]): 
 }
 
 export function overlapFilter(checkIn: string, checkOut: string) {
-  return { status: { not: 'cancelled' }, checkIn: { lt: new Date(checkOut) }, checkOut: { gt: new Date(checkIn) } }
+  return { ...activeBookings(), checkIn: { lt: new Date(checkOut) }, checkOut: { gt: new Date(checkIn) } }
 }

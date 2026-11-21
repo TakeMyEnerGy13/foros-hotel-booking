@@ -84,6 +84,33 @@ test('local hotel booking flow', async t => {
         assert.equal((await request('/api/bookings', 'POST', { ...guest, checkIn, checkOut })).status, 400)
       }
     })
+    await t.test('a guest hold lasts three hours, expires across availability checks and cannot be confirmed late', async () => {
+      const payload = stay(3, 5)
+      const create = () => request('/api/bookings', 'POST', payload)
+      const receipt = await (await create()).json()
+      const row = await db.booking.findUniqueOrThrow({ where: { id: receipt.id } })
+      assert.equal(receipt.status, 'pending')
+      const duration = 3 * 60 * 60 * 1000
+      assert.equal(Date.parse(receipt.holdExpiresAt) - row.createdAt.getTime(), duration)
+      const path = admin + '/' + receipt.id
+      const edited = await (await request(path, 'PUT', { ...payload, status: 'pending', notes: 'Called' }, cookie)).json()
+      assert.equal(edited.holdExpiresAt, receipt.holdExpiresAt)
+      assert.equal((await create()).status, 409)
+      await db.booking.update({ where: { id: row.id }, data: { createdAt: new Date(Date.now() - duration - 1000) } })
+      const rows = await (await request(admin, 'GET', undefined, cookie)).json()
+      assert.equal(rows.find(b => b.id === row.id).status, 'expired')
+      assert.equal((await request(path, 'PUT', { ...payload, status: 'confirmed' }, cookie)).status, 409)
+      const query = '?checkIn=' + date(3) + '&checkOut=' + date(5)
+      assert.ok((await (await request(roomUrl + query)).text()).includes('Забронировать ·'))
+      const catalog = await (await request('/rooms' + query)).text()
+      const fullResults = catalog.split('<div class="room-grid">')[1]?.split(/<section |<h2 class="subheading">|<\/section>/)[0]
+      assert.ok(fullResults?.includes('href="' + roomUrl + query.replace('&', '&amp;') + '"'))
+      const replacement = await (await create()).json()
+      assert.equal(replacement.status, 'pending')
+      assert.equal((await request(admin + '/' + replacement.id, 'PUT', { ...payload, status: 'confirmed' }, cookie)).status, 200)
+      await db.booking.update({ where: { id: replacement.id }, data: { createdAt: new Date(Date.now() - duration - 1000) } })
+      assert.equal((await create()).status, 409)
+    })
     await t.test('search offers the bookable part of a stay and distinguishes it from a fully occupied room', async () => {
       const search = '/rooms?checkIn=' + date(21) + '&checkOut=' + date(29)
       const option = roomUrl + '?checkIn=' + date(22) + '&checkOut=' + date(28)

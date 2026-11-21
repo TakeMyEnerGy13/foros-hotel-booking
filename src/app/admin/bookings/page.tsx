@@ -2,6 +2,8 @@ import Link from 'next/link'
 import styles from '../AdminAppearance.module.css'
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '../auth'
+import { bookingReceipt } from '@/lib/booking-hold'
+import { confirmPendingBooking } from '@/lib/booking-service'
 import { revalidatePath } from 'next/cache'
 
 export default async function AdminBookingsPage() {
@@ -42,7 +44,7 @@ export default async function AdminBookingsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {bookings.map((booking) => (
+                {bookings.map(bookingReceipt).map((booking) => (
                   <tr key={booking.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="font-medium text-gray-800">{booking.guestName}</div>
@@ -60,14 +62,20 @@ export default async function AdminBookingsPage() {
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         booking.status === 'confirmed'
                           ? 'bg-green-100 text-green-700'
-                          : booking.status === 'cancelled'
+                          : booking.status === 'cancelled' || booking.status === 'expired'
                           ? 'bg-red-100 text-red-700'
                           : 'bg-yellow-100 text-yellow-700'
                       }`}>
                         {booking.status === 'confirmed' ? 'Подтверждено'
+                          : booking.status === 'expired' ? 'Срок истёк'
                           : booking.status === 'cancelled' ? 'Отменено'
                           : 'Ожидает'}
                       </span>
+                      {booking.status === 'pending' && booking.holdExpiresAt && (
+                        <div className="text-sm">До {booking.holdExpiresAt.toLocaleString('ru-RU', {
+                          day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow',
+                        })} МСК</div>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <BookingActions bookingId={booking.id} status={booking.status} />
@@ -90,9 +98,7 @@ function BookingActions({ bookingId, status }: { bookingId: number, status: stri
         <form action={async () => {
           'use server'
           await requireAdmin()
-          await prisma.booking.updateMany({
-            where: { id: bookingId, status: 'pending' }, data: { status: 'confirmed' },
-          })
+          await confirmPendingBooking(bookingId)
           revalidatePath('/admin/bookings')
         }}>
           <button type="submit" className="bg-green-500 hover:bg-green-400 text-white px-3 py-1 rounded text-sm">
@@ -100,7 +106,7 @@ function BookingActions({ bookingId, status }: { bookingId: number, status: stri
           </button>
         </form>
       )}
-      {status !== 'cancelled' && (
+      {status !== 'cancelled' && status !== 'expired' && (
         <form action={async () => {
           'use server'
           await requireAdmin()

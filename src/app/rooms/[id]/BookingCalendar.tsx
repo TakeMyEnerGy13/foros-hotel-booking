@@ -3,6 +3,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { calendarDay, stayForNights, type Stay } from '@/lib/stay'
+import BookingConfirmation, { type GuestReceipt } from './BookingConfirmation'
 
 interface Props {
   roomId: number
@@ -47,7 +48,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
   const [guestPhone, setGuestPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
+  const [receipt, setReceipt] = useState<GuestReceipt>()
 
   const isBooked = (day: string) => bookings.some((b) => b.checkIn <= day && day < b.checkOut)
   const isSelected = (day: string) => checkIn <= day && day < checkOut
@@ -106,7 +107,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       } else if (!res.ok) {
         setError(data.error || 'Ошибка при бронировании')
       } else {
-        setSuccess(true)
+        setReceipt({ id: data.id, holdExpiresAt: data.holdExpiresAt, checkIn, checkOut })
         router.refresh()
       }
     } catch {
@@ -116,21 +117,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
     }
   }
 
-  if (success)
-    return (
-      <section id="booking" className="booking-panel" role="status">
-        <span className="label">{ru ? 'Бронирование' : 'Reservation'}</span>
-        <h2>{ru ? 'Заявка принята' : 'Request received'}</h2>
-        <p>
-          {checkIn} → {checkOut}
-        </p>
-        <p>
-          {ru
-            ? 'Бронирование ожидает подтверждения администратора.'
-            : 'Your reservation is awaiting confirmation.'}
-        </p>
-      </section>
-    )
+  if (receipt) return <BookingConfirmation receipt={receipt} ru={ru} />
 
   const monthName = ru ? MONTHS_RU[month] : viewDate.toLocaleString('en-GB', { month: 'long' })
   const weekdays = ru ? DAYS_RU : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']

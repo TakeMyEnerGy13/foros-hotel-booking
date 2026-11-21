@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import ContactServices from './ContactServices'
+import { bookingContact } from '@/lib/booking-contact'
 
 export default function HotelFooter({ locale }: { locale: string }) {
   const ru = locale !== 'en'
@@ -16,7 +17,7 @@ export default function HotelFooter({ locale }: { locale: string }) {
           <address>
             <span>{ru ? 'По вопросам бронирования' : 'Booking enquiries'}</span>
             {email}
-            <span className="footer-phone">+7 (978) XXX-XX-XX</span>
+            <a className="footer-phone" href={bookingContact.href}>{bookingContact.phone}</a>
           </address>
           <ContactServices locale={locale} />
         </div>
