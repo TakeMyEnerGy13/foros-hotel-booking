@@ -679,44 +679,25 @@ a {
 }
 .footer-contact a:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: .2em; }
 .contact-services {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px clamp(12px, 1.4vw, 24px);
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.footer-contact .contact-services { margin-top: clamp(20px, 2.2vw, 36px); }
-.contact-services a {
-  display: grid;
-  justify-items: center;
+.contact-services a { font-weight: 500; text-decoration: none; }
+.footer-contact .contact-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px clamp(14px, 1.35vw, 26px);
+  margin-top: clamp(20px, 2.2vw, 36px);
+}
+.footer-contact .contact-services a {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  min-width: 62px;
-  font-size: clamp(13px, 1vw, 16px);
-  font-weight: 500;
-  text-decoration: none;
+  min-height: 44px;
+  font-size: clamp(17px, 1.45vw, 24px);
 }
-.contact-service-icon {
-  display: grid;
-  place-items: center;
-  width: clamp(54px, 4.25vw, 66px);
-  aspect-ratio: 1;
-  border: 1px solid rgb(79 66 54 / 45%);
-  border-radius: 28%;
-  color: white;
-  background: radial-gradient(ellipse at 18% 0%, rgb(255 255 255 / 22%), transparent 65%),
-    linear-gradient(150deg, rgb(112 98 84 / 86%), rgb(65 56 49 / 92%));
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  backdrop-filter: blur(16px) saturate(150%);
-  box-shadow: inset 0 1px 1px rgb(255 255 255 / 65%), inset 0 -1px 1px rgb(255 255 255 / 16%),
-    0 3px 8px rgb(63 50 38 / 16%);
-  transition: translate .18s ease, filter .18s ease;
-}
-.contact-service-icon svg { width: 48%; height: 48%; }
-@media (prefers-reduced-motion: no-preference) {
-  .contact-services a:is(:hover, :focus-visible) .contact-service-icon { translate: 0 -2px; }
-}
-.contact-services a:is(:hover, :focus-visible) .contact-service-icon { filter: brightness(1.08); }
+.footer-contact .contact-service-icon svg { display: block; width: 1.2em; height: 1.2em; }
 .contacts-popup {
   --popup-inset: clamp(16px, 4.5vw, 32px);
   --popup-space: clamp(16px, 3vw, 24px);
@@ -753,13 +734,35 @@ a {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
-.contacts-popup .contact-services a { min-width: 0; gap: 6px; text-align: center; }
+.contacts-popup .contact-services a {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: clamp(13px, 1vw, 16px);
+  text-align: center;
+}
 .contacts-popup .contact-service-icon {
+  display: grid;
+  place-items: center;
   width: 100%;
   aspect-ratio: 4 / 3;
+  border: 1px solid rgb(79 66 54 / 45%);
   border-radius: 16px;
+  color: white;
+  background: radial-gradient(ellipse at 18% 0%, rgb(255 255 255 / 22%), transparent 65%),
+    linear-gradient(150deg, rgb(112 98 84 / 86%), rgb(65 56 49 / 92%));
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 65%), inset 0 -1px 1px rgb(255 255 255 / 16%),
+    0 3px 8px rgb(63 50 38 / 16%);
+  transition: translate .18s ease, filter .18s ease;
 }
 .contacts-popup .contact-service-icon svg { width: clamp(30px, 8vw, 42px); height: auto; }
+@media (prefers-reduced-motion: no-preference) {
+  .contacts-popup .contact-services a:is(:hover, :focus-visible) .contact-service-icon { translate: 0 -2px; }
+}
+.contacts-popup .contact-services a:is(:hover, :focus-visible) .contact-service-icon { filter: brightness(1.08); }
 .footer-map { min-width: 0; margin: 0; }
 .footer-map iframe {
   display: block;
