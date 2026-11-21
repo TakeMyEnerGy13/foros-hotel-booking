@@ -44,6 +44,12 @@ export default async function RoomPage({
 
   const ru = locale !== 'en'
   const name = ru ? room.name : room.nameEn
+  const catalogHref = validStay(checkIn, checkOut) ? '/rooms?' + new URLSearchParams({ checkIn, checkOut }) : '/rooms'
+  const allRoomsLink = (
+    <Link className="all-rooms-link" href={catalogHref}>
+      <span aria-hidden="true">←</span> {ru ? 'Все номера' : 'All rooms'}
+    </Link>
+  )
   const photos = roomPhotos(room.images.length ? room.images : [room.imageUrl]).map((src, i) => ({
     src,
     caption: name + ' · ' + (i + 1),
@@ -52,17 +58,17 @@ export default async function RoomPage({
     <div id="top" className="hotel">
       <RoomsNav locale={locale} booking="#booking" />
       <main>
-        <PhotoStage photos={photos} title={name} locale={locale} />
+        <div className="room-hero">
+          {allRoomsLink}
+          <PhotoStage photos={photos} title={name} locale={locale} />
+        </div>
         <div className="room-spread editorial">
           <section className="room-story">
-            <Link href="/rooms" className="label">
-              ← {ru ? 'Все номера' : 'All rooms'}
-            </Link>
             <h2>{ru ? 'О номере' : 'About the room'}</h2>
             <p>{ru ? room.description : room.descriptionEn}</p>
             <dl className="room-facts">
               <div>
-                <dt>{ru ? 'Стоимость за ночь' : 'Nightly rate'}</dt>
+                <dt>{ru ? 'Цена за ночь' : 'Per night'}</dt>
                 <dd>{room.price.toLocaleString(ru ? 'ru-RU' : 'en-GB')} ₽</dd>
               </div>
               <div>
@@ -88,6 +94,7 @@ export default async function RoomPage({
             price={room.price}
             bookings={bookings}
           />
+          {allRoomsLink}
         </div>
       </main>
       <HotelFooter locale={locale} />

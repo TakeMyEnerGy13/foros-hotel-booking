@@ -186,9 +186,9 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
         })}
       </div>
       <div className="cal-legend label">
-        <span>○ {ru ? 'Свободно' : 'Available'}</span>
-        <span>× {ru ? 'Занято' : 'Booked'}</span>
-        <span>● {ru ? 'Выбрано' : 'Selected'}</span>
+        <span>{ru ? 'Свободно' : 'Available'}</span>
+        <span className="booked">{ru ? 'Занято' : 'Booked'}</span>
+        <span className="selected">{ru ? 'Выбрано' : 'Selected'}</span>
       </div>
       {(checkIn || checkOut) && (
         <p className="stay-summary" aria-live="polite">

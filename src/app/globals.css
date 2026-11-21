@@ -118,7 +118,6 @@ a {
   gap: clamp(16px, 2.5vw, 48px);
 }
 .main-links a:hover,
-.room-story > a:hover,
 .search-result a {
   text-decoration: underline;
   text-underline-offset: 4px;
@@ -185,26 +184,49 @@ a {
   background: transparent;
   border-color: var(--line);
 }
+.room-hero {
+  --stage-inset: clamp(16px, 2.2vw, 42px);
+  position: relative;
+  margin-inline: var(--gutter);
+}
+.room-hero > .all-rooms-link {
+  position: absolute;
+  z-index: 1;
+  top: var(--stage-inset);
+  left: var(--stage-inset);
+}
+.room-hero .all-rooms-link, .room-spread .all-rooms-link {
+  display: inline-flex;
+  justify-content: center;
+  gap: 10px;
+}
 .photo-stage {
   position: relative;
   isolation: isolate;
   container-type: inline-size;
   overflow: hidden;
-  width: min(100%, 1440px, max(795px, 144svh));
-  aspect-ratio: 12 / 7;
-  margin-inline: auto;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: max(380px, calc(100svh - 92px));
   background: var(--ink);
   color: var(--linen);
-  --stage-inset: clamp(20px, 3.2cqw, 46px);
 }
 .stage-photo {
   position: absolute;
+  z-index: -2;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: 50% 56%;
-  filter: brightness(0.65) saturate(0.8);
+}
+.photo-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg, rgb(33 25 20 / 68%), transparent 57%);
+  pointer-events: none;
 }
 .stage-title {
   position: absolute;
@@ -274,7 +296,7 @@ a {
 }
 .expand-photo {
   right: var(--stage-inset);
-  top: 22px;
+  top: var(--stage-inset);
 }
 .stage-arrow {
   top: 50%;
@@ -557,6 +579,7 @@ a {
 }
 .home-rooms .section-heading h2,
 .catalog-heading h1,
+.room-story h2,
 .home-place h2,
 .home-footer-name {
   font-family: 'Playfair Display', Georgia, serif;
@@ -628,8 +651,8 @@ a {
   margin: 0;
   color: var(--note);
   line-height: 1.5;
-  max-width: 45ch;
-  font-size: clamp(18px, 1.6vw, 23px);
+  max-width: 43ch;
+  font-size: clamp(19px, 1.65vw, 28px);
 }
 .coast-gallery {
   margin: clamp(80px, 13.3vw, 250px) var(--home-gutter) 0;
@@ -902,26 +925,40 @@ a {
 .room-spread {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(325px, 0.85fr);
-  gap: clamp(38px, 9vw, 160px);
+  grid-template-areas: 'story booking' 'back booking';
+  grid-template-rows: auto 1fr;
+  gap: clamp(36px, 4vw, 72px) clamp(38px, 8vw, 140px);
   align-items: start;
+  padding-bottom: 0;
+}
+.room-story { grid-area: story; }
+.room-spread > .booking-panel { grid-area: booking; }
+.room-spread > .all-rooms-link {
+  grid-area: back;
+  align-self: end;
+  justify-self: start;
 }
 .room-story h2 {
-  margin: 34px 0 22px;
+  margin: 0 0 clamp(20px, 2vw, 32px);
+  line-height: 1.08;
 }
 .room-facts {
-  margin: 42px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 50px) clamp(16px, 2.5vw, 42px);
+  margin: clamp(30px, 3.4vw, 56px) 0 0;
 }
-.room-facts > div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 15px 0;
-  border-top: 1px solid var(--line);
+.room-facts dt {
+  margin-bottom: 6px;
+  color: #675d53;
+  font-size: clamp(14px, 1vw, 17px);
 }
 .room-facts dd {
   margin: 0;
-  text-align: right;
+  font: 500 clamp(21px, 1.8vw, 32px)/1.2 Inter, Arial, sans-serif;
+}
+.room-facts > div:nth-child(-n + 2) dd {
+  font: 500 clamp(25px, 2.5vw, 46px)/1.16 'Playfair Display', Georgia, serif;
 }
 .booking-panel {
   border: 1px solid var(--ink);
@@ -969,7 +1006,9 @@ a {
 .cal-day:disabled {
   color: #777;
 }
-.cal-day.booked {
+.cal-day.booked:not(.selected) {
+  color: #694a38;
+  background: #e9dace;
   text-decoration: line-through;
 }
 .cal-day.in-range {
@@ -986,6 +1025,10 @@ a {
   padding-block: 9px 15px;
   border-bottom: 1px solid var(--line);
 }
+.cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.cal-legend span::before { content: ''; width: 13px; height: 13px; border: 1px solid var(--line); }
+.cal-legend .booked::before { background: linear-gradient(var(--ink), var(--ink)) center / 7px 1px no-repeat #e9dace; }
+.cal-legend .selected::before { border-color: var(--ink); background: var(--ink); }
 .stay-summary {
   justify-content: flex-start;
   margin-top: 12px;
@@ -1079,33 +1122,23 @@ a {
     padding-right: 3px;
   }
   .photo-stage {
-    width: 100%;
-    height: clamp(350px, 50svh, 540px);
-    aspect-ratio: auto;
-    --stage-inset: 16px;
+    aspect-ratio: 4 / 5;
+    max-height: clamp(360px, 65svh, 530px);
   }
   .stage-title {
     bottom: 82px;
     max-width: calc(100% - 32px);
   }
   .stage-title h1 {
-    font-size: clamp(42px, 12vw, 78px);
+    font-size: clamp(34px, 10.7vw, 72px);
   }
+  .stage-arrow { top: 38%; }
   .stage-thumbs {
     gap: 5px;
     max-width: calc(100% - 32px);
   }
   .stage-thumbs img {
     width: 49px;
-  }
-  .stage-arrow,
-  .expand-photo {
-    top: 16px;
-    transform: none;
-  }
-  .stage-arrow.next {
-    left: 68px;
-    right: auto;
   }
   .stay-search {
     grid-template-columns: 1fr 1fr;
@@ -1141,6 +1174,8 @@ a {
   .tile-action { padding-inline: 8px; }
   .room-spread {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas: 'story' 'booking' 'back';
   }
   .all-rooms-link { min-height: 46px; min-width: 112px; padding-inline: 16px; font-size: 12px; }
   .home-rooms .room-grid { gap: 18px 12px; }
@@ -1163,14 +1198,6 @@ a {
   .footer-map { grid-area: map; }
   .room-spread {
     gap: 36px;
-  }
-  .room-story h2 {
-    margin-top: 20px;
-  }
-  .room-facts {
-    margin-top: 23px;
-  }
-  .room-spread {
     padding-top: 34px;
   }
   .catalog-heading h1 {
