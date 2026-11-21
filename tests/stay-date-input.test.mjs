@@ -29,3 +29,16 @@ test('typing adds each boundary immediately and caps the year at four digits', (
   assert.equal(maskStayDate('30/07/2028', '/'), '30/07/2028')
   assert.equal(maskStayDate('abc', '.'), '')
 })
+
+test('short months and two-digit years resolve to full calendar dates', () => {
+  for (let month = 2; month <= 9; month++) {
+    const expected = '2026-0' + month + '-15'
+    assert.equal(readStayDate('15' + month + '26'), expected)
+    assert.equal(readStayDate('15' + month + '2026'), expected)
+    assert.equal(readStayDate('15.' + month + '.26'), expected)
+  }
+  assert.equal(readStayDate('31.12.26'), '2026-12-31')
+  assert.equal(readStayDate('29.02.26'), '')
+  assert.equal(readStayDate('30.07.2'), '')
+  assert.equal(readStayDate('30.07.202'), '')
+})

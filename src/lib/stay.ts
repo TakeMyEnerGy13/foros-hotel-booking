@@ -32,6 +32,7 @@ export function readStayDate(value: string) {
   const text = value.trim()
   if (/^\d{4}-/.test(text)) return isCalendarDay(text) ? text : ''
   const parts = text.match(/^(\d{2})(\d{2})(\d{4}|\d{2})$/)
+    ?? text.match(/^(\d{2})([2-9])(\d{4}|\d{2})$/)
     ?? text.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4}|\d{2})$/)
   if (!parts) return ''
   const [, day, month, year] = parts

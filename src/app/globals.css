@@ -69,11 +69,9 @@ a {
 .solid,
 .expand-photo,
 .room-facts dt {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.095em;
-  line-height: 1.35;
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
 }
 .masthead {
   min-height: 76px;
@@ -286,7 +284,7 @@ a {
   letter-spacing: -0.065em;
 }
 .stay-date { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.stay-date label { font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+.stay-date label { font-size: 13px; font-weight: 400; line-height: 1.4; }
 .stay-date-entry { display: flex; align-items: center; gap: 4px; }
 .stay-date-entry > input {
   flex: 1;
@@ -402,7 +400,7 @@ a {
   justify-content: space-between;
   gap: 5px 10px;
   margin: 15px 0 8px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .tile-title {
@@ -613,7 +611,7 @@ a {
 }
 .cal-legend {
   flex-wrap: wrap;
-  font-size: 10px;
+  font-size: 12px;
   padding-block: 9px 15px;
   border-bottom: 1px solid var(--line);
 }
@@ -697,13 +695,13 @@ a {
     padding: 3px 0;
   }
   .header-book {
-    font-size: 10px;
+    font-size: 12px;
     min-height: 35px;
     padding: 7px 12px;
     gap: 6px;
   }
   .languages {
-    font-size: 10px;
+    font-size: 12px;
     gap: 3px;
   }
   .languages button + button:before {
@@ -752,16 +750,13 @@ a {
   .stay-search .solid {
     justify-content: space-between;
   }
-  .label {
-    font-size: 10px;
-  }
   .section-heading {
     align-items: center;
     gap: 12px;
   }
   .section-heading .pill {
     padding: 7px 13px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .section-heading h2,
   .place h2,
@@ -772,7 +767,7 @@ a {
     gap: 27px 12px;
   }
   .tile-meta {
-    font-size: 9px;
+    font-size: 12px;
     display: grid;
     gap: 3px;
   }
@@ -937,7 +932,7 @@ a {
 .ops-actions .pill,
 .ops-actions .solid {
   min-height: 38px;
-  font-size: 10px;
+  font-size: 12px;
   padding: 9px 13px;
 }
 .login-view {

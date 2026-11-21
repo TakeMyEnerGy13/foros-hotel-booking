@@ -64,7 +64,7 @@ export default function ContactsPopup({ locale }: { locale: string }) {
       <button
         onClick={() => setOpen(true)}
         style={{fontFamily: "'Inter', sans-serif", background: 'none', border: 'none', cursor: 'pointer'}}
-        className="text-white/80 hover:text-white text-sm uppercase transition-colors w-full text-left"
+        className="text-white/80 hover:text-white text-sm transition-colors w-full text-left"
       >
         {locale === 'ru' ? 'Контакты' : 'Contacts'}
       </button>

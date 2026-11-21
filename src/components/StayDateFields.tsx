@@ -4,7 +4,9 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { maskStayDate, readStayDate } from '@/lib/stay'
 
 function displayDate(iso: string, ru: boolean) {
-  return iso.split('-').reverse().join(ru ? '.' : '/')
+  if (!iso) return ''
+  const [year, month, day] = iso.split('-')
+  return [day, month, year.startsWith('20') ? year.slice(2) : year].join(ru ? '.' : '/')
 }
 
 function DateField({ name, label, ru, text, change, min, required, rangeMessage }: {
@@ -19,10 +21,10 @@ function DateField({ name, label, ru, text, change, min, required, rangeMessage 
 }) {
   const field = useRef<HTMLInputElement>(null)
   const [focused, setFocused] = useState(false)
-  const iso = text.length === 10 ? readStayDate(text) : ''
-  const format = ru ? 'ДД.ММ.ГГГГ' : 'DD/MM/YYYY'
+  const iso = readStayDate(text)
+  const format = ru ? 'дд.мм.гг' : 'dd/mm/yy'
   let error = ''
-  if (text && !iso) error = ru ? 'Введите дату в формате ДД.ММ.ГГГГ.' : 'Enter a date in DD/MM/YYYY format.'
+  if (text && !iso) error = ru ? 'Проверьте дату. Например, 30.07.26.' : 'Check the date. For example, 30/07/26.'
   else if (iso && iso < min) error = rangeMessage
 
   useLayoutEffect(() => {
@@ -46,6 +48,10 @@ function DateField({ name, label, ru, text, change, min, required, rangeMessage 
     } else if (caret === raw.length && /^(?:\d{2}[./])?\d[./-]$/.test(raw)) {
       digits = digits.slice(0, -1) + '0' + digits.slice(-1)
       digitPosition = digits.length
+    } else if (action?.startsWith('insert') && digitPosition === 3 && /[2-9]/.test(digits.charAt(2))) {
+      const suffix = raw.slice(caret).replace(/^\d(?=[./])/, '')
+      digits = digits.slice(0, 2) + '0' + digits[2] + suffix.replace(/\D/g, '')
+      digitPosition = 4
     }
 
     if (action === 'insertText' && raw.startsWith(text) && digits.length === previous.length + 1) {
@@ -91,12 +97,15 @@ function DateField({ name, label, ru, text, change, min, required, rangeMessage 
             }
             if (start !== 0 || end !== text.length) return
             const date = readStayDate(pasted)
-            if (date && (pasted.replace(/\D/g, '').length === 8 || /[./-]\d{4}$/.test(pasted))) {
+            if (date) {
               event.preventDefault()
               change(displayDate(date, ru))
             }
           }}
-          onBlur={() => setFocused(false)}
+          onBlur={() => {
+            setFocused(false)
+            if (iso) change(displayDate(iso, ru))
+          }}
         />
         <div className="stay-date-picker">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
@@ -126,7 +135,7 @@ export default function StayDateFields({ locale, today, checkIn = '', checkOut =
   const ru = locale !== 'en'
   const [arrival, setArrival] = useState(displayDate(readStayDate(checkIn), ru))
   const [departure, setDeparture] = useState(displayDate(readStayDate(checkOut), ru))
-  const first = arrival.length === 10 ? readStayDate(arrival) : ''
+  const first = readStayDate(arrival)
   let earliestEnd = today
   if (first >= today) {
     const next = new Date(first + 'T00:00:00Z')
