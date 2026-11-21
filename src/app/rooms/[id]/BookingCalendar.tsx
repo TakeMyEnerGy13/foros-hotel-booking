@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { calendarDay, overlaps, toggleStayNight, type Stay } from '@/lib/stay'
+import { calendarDay, stayForNights, type Stay } from '@/lib/stay'
 
 interface Props {
   roomId: number
@@ -36,12 +36,10 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
     const [year, month] = (initialStay?.checkIn ?? today).split('-').map(Number)
     return new Date(year, month - 1, 1)
   })
-  const [mode, setMode] = useState<'range' | 'nights'>('range')
-  const [pendingArrival, setPendingArrival] = useState('')
-  const [selectedStays, setSelectedStays] = useState<Stay[]>(initialStay ? [initialStay] : [])
-  const stay = selectedStays.length === 1 ? selectedStays[0] : undefined
-  const checkIn = stay?.checkIn ?? pendingArrival
-  const checkOut = stay?.checkOut ?? ''
+  const [selection, setSelection] = useState(initialStay ? { ...initialStay, anchor: initialStay.checkIn } : undefined)
+  const [crossesBooking, setCrossesBooking] = useState(false)
+  const checkIn = selection?.checkIn ?? ''
+  const checkOut = selection?.checkOut ?? ''
   const [guestName, setGuestName] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
@@ -50,31 +48,20 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
   const [success, setSuccess] = useState(false)
 
   const isBooked = (day: string) => bookings.some((b) => b.checkIn <= day && day < b.checkOut)
-  const canEndOn = (day: string) => !bookings.some(b => overlaps(b, { checkIn: pendingArrival, checkOut: day }))
-
-  function switchMode(next: 'range' | 'nights') {
-    if (next === mode) return
-    if (next === 'nights' && pendingArrival) {
-      setSelectedStays(toggleStayNight([], pendingArrival))
-      setPendingArrival('')
-    }
-    setMode(next)
+  function clearSelection() {
+    setSelection(undefined)
+    setCrossesBooking(false)
     setError('')
   }
 
   const handleDayClick = (day: string) => {
-    if (day < today) return
+    if (day < today || isBooked(day)) return
     setError('')
-    if (mode === 'nights') {
-      if (!isBooked(day)) setSelectedStays(stays => toggleStayNight(stays, day))
-    } else if (pendingArrival && day > pendingArrival) {
-      if (canEndOn(day)) {
-        setSelectedStays([{ checkIn: pendingArrival, checkOut: day }])
-        setPendingArrival('')
-      } else setError(ru ? 'В выбранном диапазоне есть занятые ночи' : 'Some nights are already booked')
-    } else if (!isBooked(day)) {
-      setSelectedStays([])
-      setPendingArrival(day)
+    const anchor = selection?.anchor ?? day
+    const stay = stayForNights(anchor, day, bookings)
+    setCrossesBooking(!stay)
+    if (stay) {
+      setSelection({ ...stay, anchor })
     }
   }
 
@@ -96,7 +83,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
 
   const handleSubmit = async () => {
     setError('')
-    if (!checkIn || !checkOut || !guestName || !guestEmail || !guestPhone) {
+    if (crossesBooking || !checkIn || !checkOut || !guestName || !guestEmail || !guestPhone) {
       setError(ru ? 'Заполните все поля и выберите даты' : 'Enter your details and select your dates')
       return
     }
@@ -139,14 +126,6 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
 
   const monthName = ru ? MONTHS_RU[month] : viewDate.toLocaleString('en-GB', { month: 'long' })
   const weekdays = ru ? DAYS_RU : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
-  let instruction = ru ? 'Выберите дату заезда, затем дату выезда.' : 'Choose your check-in day, then your check-out day.'
-  if (mode === 'nights') {
-    instruction = selectedStays.length > 1
-      ? (ru ? 'Для одной брони выберите ночи подряд.' : 'Choose consecutive nights for one stay.')
-      : (ru ? 'Нажмите на ночь, чтобы выбрать её или снять выбор.' : 'Tap each night to select or deselect it.')
-  } else if (pendingArrival) {
-    instruction = ru ? 'Выберите день выезда. Эта ночь не входит в бронь.' : 'Choose your check-out day. That night is excluded.'
-  }
   return (
     <section
       className="booking-panel"
@@ -154,15 +133,13 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       aria-label={ru ? 'Календарь бронирования' : 'Booking calendar'}
     >
       <h2>{ru ? 'Забронировать номер' : 'Book your stay'}</h2>
-      <div className="cal-modes" role="group" aria-label={ru ? 'Способ выбора дат' : 'Date selection mode'}>
-        <button type="button" aria-pressed={mode === 'range'} onClick={() => switchMode('range')}>
-          {ru ? 'Заезд и выезд' : 'Check-in and out'}
-        </button>
-        <button type="button" aria-pressed={mode === 'nights'} onClick={() => switchMode('nights')}>
-          {ru ? 'По ночам' : 'Pick nights'}
-        </button>
+      <div className="cal-instruction">
+        <p role="status">{crossesBooking
+          ? (ru ? 'В этом периоде есть занятые ночи. Выберите другой период.' : 'This stay includes booked nights. Choose a different period.')
+          : (ru ? 'Выберите первую и последнюю ночь проживания.' : 'Select the first and last nights of your stay.')}
+        </p>
+        <button type="button" disabled={!selection || loading} onClick={clearSelection}>{ru ? 'Сбросить' : 'Clear'}</button>
       </div>
-      <p className="cal-instruction" aria-live="polite">{instruction}</p>
       <div className="cal-month">
         <button
           type="button"
@@ -191,11 +168,8 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
         {days.map((date, i) => {
           if (!date) return <span key={'blank-' + i} />
           const ds = calendarDay(date)
-          const choosingCheckout = Boolean(pendingArrival && ds > pendingArrival)
-          const crossesBooking = choosingCheckout && !canEndOn(ds)
-          const selected = ds === pendingArrival || (mode === 'range' && ds === checkOut)
-            || selectedStays.some(period => period.checkIn <= ds && ds < period.checkOut)
-          const booked = isBooked(ds) && (!choosingCheckout || crossesBooking) && !selected
+          const booked = isBooked(ds)
+          const selected = !booked && checkIn <= ds && ds < checkOut
           const past = ds < today
           return (
             <button
@@ -204,8 +178,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
               aria-label={ds}
               aria-pressed={selected}
               aria-current={ds === today ? 'date' : undefined}
-              aria-disabled={crossesBooking || undefined}
-              disabled={past || booked}
+              disabled={past || booked || loading}
               className={[
                 'cal-day',
                 past && 'past',
@@ -262,12 +235,12 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
           />
         </label>
         {error && <p role="alert">{error}</p>}
-        <button type="submit" className="solid" disabled={loading || !checkIn || !checkOut}>
+        <button type="submit" className="solid" disabled={loading || crossesBooking || !selection}>
           {loading
             ? ru
               ? 'Отправляем…'
               : 'Sending…'
-            : nights > 0
+            : nights > 0 && !crossesBooking
               ? (ru ? 'Забронировать · ' : 'Book · ') +
                 (nights * price).toLocaleString(ru ? 'ru-RU' : 'en-GB') +
                 ' ₽'

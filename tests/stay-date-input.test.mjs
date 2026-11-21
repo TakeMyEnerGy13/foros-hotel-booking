@@ -4,26 +4,27 @@ import { createRequire } from 'node:module'
 import { register } from 'ts-node'
 
 register({ skipProject: true, transpileOnly: true, compilerOptions: { module: 'CommonJS' } })
-const { maskStayDate, readStayDate, toggleStayNight } = createRequire(import.meta.url)('../src/lib/stay.ts')
+const { maskStayDate, readStayDate, stayForNights } = createRequire(import.meta.url)('../src/lib/stay.ts')
 
-test('individual nights join only when every intervening night is selected', () => {
-  const first = toggleStayNight([], '2026-11-21')
-  const apart = toggleStayNight(first, '2026-11-23')
-  assert.deepEqual(apart, [
-    { checkIn: '2026-11-21', checkOut: '2026-11-22' },
-    { checkIn: '2026-11-23', checkOut: '2026-11-24' },
-  ])
-  const joined = toggleStayNight(apart, '2026-11-22')
-  assert.deepEqual(joined, [{ checkIn: '2026-11-21', checkOut: '2026-11-24' }])
-  assert.deepEqual(toggleStayNight(joined, '2026-11-22'), apart)
-  assert.deepEqual(toggleStayNight(first, '2026-11-21'), [])
+test('a click selects one night and two clicks fill the inclusive range in either direction', () => {
+  assert.deepEqual(stayForNights('2026-11-21', '2026-11-21', []), { checkIn: '2026-11-21', checkOut: '2026-11-22' })
+  const fiveNights = { checkIn: '2026-11-21', checkOut: '2026-11-26' }
+  assert.deepEqual(stayForNights('2026-11-21', '2026-11-25', []), fiveNights)
+  assert.deepEqual(stayForNights('2026-11-25', '2026-11-21', []), fiveNights)
 })
 
-test('night selection extends across leap day and the end of the year', () => {
-  const march = toggleStayNight([], '2028-03-01')
-  assert.deepEqual(toggleStayNight(march, '2028-02-29'), [{ checkIn: '2028-02-29', checkOut: '2028-03-02' }])
-  const newYear = toggleStayNight([], '2026-12-31')
-  assert.deepEqual(toggleStayNight(newYear, '2027-01-01'), [{ checkIn: '2026-12-31', checkOut: '2027-01-02' }])
+test('booked nights cannot be selected as an endpoint or crossed; consecutive stays may touch', () => {
+  const bookings = [{ checkIn: '2026-11-23', checkOut: '2026-11-26' }]
+  assert.deepEqual(stayForNights('2026-11-21', '2026-11-22', bookings), { checkIn: '2026-11-21', checkOut: '2026-11-23' })
+  for (const [a, b] of [['22','23'], ['23','23'], ['23','26'], ['21','27'], ['27','21']]) {
+    assert.equal(stayForNights('2026-11-' + a, '2026-11-' + b, bookings), undefined)
+  }
+  assert.deepEqual(stayForNights('2026-11-26', '2026-11-26', bookings), { checkIn: '2026-11-26', checkOut: '2026-11-27' })
+})
+
+test('the morning after the last night rolls over at leap days and year boundaries', () => {
+  assert.deepEqual(stayForNights('2028-02-28', '2028-02-29', []), { checkIn: '2028-02-28', checkOut: '2028-03-01' })
+  assert.deepEqual(stayForNights('2026-12-30', '2026-12-31', []), { checkIn: '2026-12-30', checkOut: '2027-01-01' })
 })
 
 test('guest date entry accepts digits, localized dates and pasted ISO dates', () => {

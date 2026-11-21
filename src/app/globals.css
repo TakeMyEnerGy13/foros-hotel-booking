@@ -980,28 +980,27 @@ a {
   justify-content: space-between;
   gap: 10px;
 }
-.cal-modes, .cal-instruction, .cal-month, .calendar-grid {
+.cal-instruction, .cal-month, .calendar-grid {
   max-width: 28rem;
   margin-inline: auto;
 }
-.cal-modes {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--ink);
-}
-.cal-modes button {
-  min-height: 42px;
-  padding: 6px 8px;
-  font-size: 14px;
-}
-.cal-modes button[aria-pressed='true'] { background: var(--ink); color: var(--linen); }
-.cal-modes button:focus-visible { outline-offset: -4px; }
 .cal-instruction {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
   margin-block: 10px 18px;
   font-size: 14px;
   line-height: 1.4;
   color: var(--muted);
 }
+.cal-instruction button {
+  flex: none;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cal-instruction button:disabled { opacity: .45; }
 .cal-month strong {
   font-weight: 500;
 }
@@ -1030,12 +1029,6 @@ a {
 .cal-day[aria-current='date'] {
   font-weight: 600;
 }
-.cal-day[aria-disabled='true'] {
-  color: var(--muted);
-  border-color: transparent;
-  background: transparent;
-  cursor: default;
-}
 .cal-day.booked {
   color: #694a38;
   border-color: transparent;
@@ -1048,7 +1041,7 @@ a {
   background: transparent;
   text-decoration: none;
 }
-.cal-day:enabled:not([aria-disabled='true']):hover { border-color: var(--ink); }
+.cal-day:enabled:hover { border-color: var(--ink); }
 .cal-day.selected {
   background: var(--ink);
   color: var(--linen);

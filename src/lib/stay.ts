@@ -48,23 +48,13 @@ export function overlaps(existing: Stay, requested: Stay) {
   return existing.checkIn < requested.checkOut && existing.checkOut > requested.checkIn
 }
 
-export function toggleStayNight(stays: Stay[], day: string): Stay[] {
-  const morning = new Date(day + 'T00:00:00Z')
+export function stayForNights(anchor: string, night: string, bookings: Stay[]): Stay | undefined {
+  const checkIn = anchor < night ? anchor : night
+  const lastNight = anchor < night ? night : anchor
+  const morning = new Date(lastNight + 'T00:00:00Z')
   morning.setUTCDate(morning.getUTCDate() + 1)
-  const next = morning.toISOString().slice(0, 10)
-  const selected = stays.find(stay => stay.checkIn <= day && day < stay.checkOut)
-  if (selected) {
-    const remaining: Stay[] = []
-    if (selected.checkIn < day) remaining.push({ checkIn: selected.checkIn, checkOut: day })
-    if (next < selected.checkOut) remaining.push({ checkIn: next, checkOut: selected.checkOut })
-    return stays.flatMap(stay => stay === selected ? remaining : [stay])
-  }
-
-  const before = stays.find(stay => stay.checkOut === day)
-  const after = stays.find(stay => stay.checkIn === next)
-  const joined = { checkIn: before?.checkIn ?? day, checkOut: after?.checkOut ?? next }
-  return [...stays.filter(stay => stay !== before && stay !== after), joined]
-    .sort((a, b) => a.checkIn.localeCompare(b.checkIn))
+  const stay = { checkIn, checkOut: morning.toISOString().slice(0, 10) }
+  return bookings.some(booking => overlaps(booking, stay)) ? undefined : stay
 }
 
 export function overlapFilter(checkIn: string, checkOut: string) {
