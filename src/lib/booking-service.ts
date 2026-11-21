@@ -3,13 +3,14 @@ import { z } from 'zod'
 import { prisma } from './prisma'
 import { hotelToday, overlapFilter, validStay } from './stay'
 import { activeBookings, bookingReceipt } from './booking-hold'
+import { normalizeGuestPhone } from './guest-phone'
 
 const id = z.number().int().positive().max(2147483647)
 const fields = z.object({
   checkIn: z.string(), checkOut: z.string(), guestName: z.string().trim().min(1),
 })
 const guestFields = fields.extend({
-  roomId: id, guestEmail: z.email(), guestPhone: z.string().trim().min(1),
+  roomId: id, guestEmail: z.email(), guestPhone: z.string().max(32).transform(normalizeGuestPhone).pipe(z.string().min(1)),
 })
 const adminFields = fields.extend({
   guestEmail: z.union([z.email(), z.literal('')]).default(''),

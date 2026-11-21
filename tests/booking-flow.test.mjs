@@ -79,6 +79,23 @@ test('local hotel booking flow', async t => {
       assert.equal((await request('/api/bookings', 'POST', stay(10, 14))).status, 200)
       assert.equal((await request(path, 'PUT', { ...stay(10, 14), status: 'confirmed' }, cookie)).status, 409)
     })
+    await t.test('guest phone numbers are length-checked and saved with a country code', async () => {
+      const reserve = guestPhone => request('/api/bookings', 'POST', { ...stay(6, 7), guestPhone })
+      for (const invalid of ['9999999999999999999999999', '+79991', '+712345678901', '+1234567890123456', 'abc9991234567', '8 999 123 45']) {
+        assert.equal((await reserve(invalid)).status, 400, invalid)
+      }
+      for (const [phone, expected] of [
+        ['8 (999) 123-45-67', '+79991234567'], ['9991234567', '+79991234567'],
+        ['+7 (999) 123-45-67', '+79991234567'], ['+44 7700 900123', '+447700900123'],
+      ]) {
+        const response = await reserve(phone)
+        assert.equal(response.status, 200)
+        const { id } = await response.json()
+        const booking = await db.booking.findUniqueOrThrow({ where: { id } })
+        assert.equal(booking.guestPhone, expected)
+        assert.equal((await request(admin + '/' + id, 'PUT', { ...stay(6, 7), status: 'cancelled' }, cookie)).status, 200)
+      }
+    })
     await t.test('rejects reversed, nonexistent and past dates', async () => {
       for (const [checkIn, checkOut] of [[date(23), date(22)], [year + '-02-30', date(4)], ['2000-01-01', '2000-01-02']]) {
         assert.equal((await request('/api/bookings', 'POST', { ...guest, checkIn, checkOut })).status, 400)
