@@ -969,17 +969,17 @@ a {
   font-size: clamp(38px, 3.2vw, 58px);
   margin: 12px 0 25px;
 }
+.booking-panel > h2:first-child { margin-top: 0; }
 .cal-month,
-.cal-legend,
 .stay-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
-.cal-month {
-  border-block: 1px solid var(--line);
-  padding: 11px 0;
+.cal-month, .calendar-grid {
+  max-width: 28rem;
+  margin-inline: auto;
 }
 .cal-month strong {
   font-weight: 500;
@@ -987,48 +987,52 @@ a {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 3px;
+  gap: clamp(3px, .4vw, 7px);
   text-align: center;
-  margin: 12px 0;
+  margin-block: 12px 0;
 }
 .weekday {
   padding: 6px 0;
 }
 .cal-day {
-  height: 40px;
-  border: 1px solid transparent;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--ink);
   line-height: 1;
   font-size: 16px;
+  font-variant-numeric: tabular-nums;
 }
-.cal-day.today {
-  border-bottom-color: var(--ink);
+.cal-day[aria-current='date'] {
+  font-weight: 600;
 }
-.cal-day:disabled {
-  color: #777;
+.cal-day[aria-disabled='true'] {
+  color: var(--muted);
+  border-color: transparent;
+  background: transparent;
+  cursor: default;
 }
-.cal-day.booked:not(.selected) {
+.cal-day.booked {
   color: #694a38;
+  border-color: transparent;
   background: #e9dace;
   text-decoration: line-through;
 }
-.cal-day.in-range {
-  border-block-color: var(--line);
+.cal-day.past {
+  color: rgb(64 58 52 / 35%);
+  border-color: transparent;
+  background: transparent;
+  text-decoration: none;
 }
-.cal-day.selected,
-.cal-day:not(:disabled):hover {
+.cal-day:enabled:not([aria-disabled='true']):hover { border-color: var(--ink); }
+.cal-day.selected {
   background: var(--ink);
   color: var(--linen);
+  border-color: var(--ink);
 }
-.cal-legend {
-  flex-wrap: wrap;
-  font-size: 12px;
-  padding-block: 9px 15px;
-  border-bottom: 1px solid var(--line);
-}
-.cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.cal-legend span::before { content: ''; width: 13px; height: 13px; border: 1px solid var(--line); }
-.cal-legend .booked::before { background: linear-gradient(var(--ink), var(--ink)) center / 7px 1px no-repeat #e9dace; }
-.cal-legend .selected::before { border-color: var(--ink); background: var(--ink); }
 .stay-summary {
   justify-content: flex-start;
   margin-top: 12px;

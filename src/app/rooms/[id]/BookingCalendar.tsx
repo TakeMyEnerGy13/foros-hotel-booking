@@ -129,7 +129,6 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       id="booking"
       aria-label={ru ? 'Календарь бронирования' : 'Booking calendar'}
     >
-      <span className="label">{ru ? 'Календарь' : 'Calendar'}</span>
       <h2>{ru ? 'Забронировать номер' : 'Book your stay'}</h2>
       <div className="cal-month">
         <button
@@ -159,22 +158,25 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
         {days.map((date, i) => {
           if (!date) return <span key={'blank-' + i} />
           const ds = calendarDay(date)
-          const booked = isBooked(ds) && !canEndOn(ds)
-          const selected = ds === checkIn || ds === checkOut
-          const inRange = checkIn && checkOut && ds > checkIn && ds < checkOut
+          const choosingCheckout = selectingEnd && ds > checkIn
+          const crossesBooking = choosingCheckout && !canEndOn(ds)
+          const selected = ds === checkIn || ds === checkOut || Boolean(checkOut && ds > checkIn && ds < checkOut)
+          const booked = isBooked(ds) && (!choosingCheckout || crossesBooking) && !selected
+          const past = ds < today
           return (
             <button
               key={ds}
               type="button"
               aria-label={ds}
               aria-pressed={selected}
-              disabled={ds < today || (booked && ds !== checkOut)}
+              aria-current={ds === today ? 'date' : undefined}
+              aria-disabled={crossesBooking || undefined}
+              disabled={past || booked}
               className={[
                 'cal-day',
+                past && 'past',
                 selected && 'selected',
-                inRange && 'in-range',
                 booked && 'booked',
-                ds === today && 'today',
               ]
                 .filter(Boolean)
                 .join(' ')}
@@ -184,11 +186,6 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
             </button>
           )
         })}
-      </div>
-      <div className="cal-legend label">
-        <span>{ru ? 'Свободно' : 'Available'}</span>
-        <span className="booked">{ru ? 'Занято' : 'Booked'}</span>
-        <span className="selected">{ru ? 'Выбрано' : 'Selected'}</span>
       </div>
       {(checkIn || checkOut) && (
         <p className="stay-summary" aria-live="polite">
@@ -203,7 +200,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
         }}
       >
         <label>
-          <span className="label">{ru ? 'Имя' : 'Name'}</span>
+          <span className="sr-only">{ru ? 'Ваше имя' : 'Your name'}</span>
           <input
             type="text"
             autoComplete="name"
@@ -214,7 +211,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
           />
         </label>
         <label>
-          <span className="label">Email</span>
+          <span className="sr-only">Email</span>
           <input
             type="email"
             autoComplete="email"
@@ -225,7 +222,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
           />
         </label>
         <label>
-          <span className="label">{ru ? 'Телефон' : 'Phone'}</span>
+          <span className="sr-only">{ru ? 'Телефон' : 'Phone'}</span>
           <input
             type="tel"
             autoComplete="tel"
