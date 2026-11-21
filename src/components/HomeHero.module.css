@@ -29,7 +29,7 @@
 .nav { top: 24px; z-index: 2; }
 .navEnd, .socials { display: flex; align-items: center; gap: 10px; }
 .menu { position: relative; }
-.menuToggle, .nav .rooms, .nav :global(.languages), .socials a {
+.menuToggle, .nav .rooms, .nav :global(.languages) {
   border: 1px solid rgb(246 241 235 / 66%);
   border-radius: 999px;
   color: var(--paper);
@@ -45,7 +45,7 @@
   font-size: 14px;
   font-weight: 500;
 }
-.menuToggle:hover, .menuToggle[aria-expanded='true'], .nav .rooms:hover, .socials a:hover {
+.menuToggle:hover, .menuToggle[aria-expanded='true'], .nav .rooms:hover {
   background: var(--paper);
   color: var(--wood);
 }
@@ -100,19 +100,33 @@
   gap: clamp(12px, 1.6vw, 28px);
   align-items: end;
 }
-.tools :global(.hero-weather) { display: flex; gap: 8px; }
+.tools :global(.hero-weather) { display: flex; gap: 12px; }
+.tools :global(.hero-weather) > div,
+.socials a {
+  color: white;
+  background: rgb(255 255 255 / 8%);
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 16px;
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 4px 24px rgb(0 0 0 / 15%), inset 0 1px 0 rgb(255 255 255 / 20%);
+}
 .tools :global(.hero-weather) > div {
-  min-width: 72px;
-  padding: 9px 12px;
-  border: 1px solid rgb(246 241 235 / 60%);
-  border-radius: 12px;
-  background: var(--wood);
+  min-width: 80px;
+  padding: 12px 16px;
   text-align: center;
 }
 .tools :global(.hero-weather) span { display: block; color: var(--paper); font-size: 12px; }
 .tools :global(.hero-weather) strong { font: 400 24px/1.35 'DM Serif Display', serif; }
-.socials { justify-self: end; gap: 8px; }
-.socials a { display: grid; place-items: center; width: 50px; height: 50px; }
+.socials { justify-self: end; gap: 12px; }
+.socials a {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  transition: background-color .2s ease;
+}
+.socials a:hover, .socials a:focus-visible { background: rgb(255 255 255 / 20%); }
 .socials svg { display: block; width: 24px; height: 24px; }
 
 .search {
@@ -165,7 +179,9 @@
   .tools :global(.hero-weather) { gap: 6px; }
   .tools :global(.hero-weather) > div { min-width: 54px; padding: 5px 7px; }
   .tools :global(.hero-weather) strong { font-size: 18px; }
-  .socials { gap: 5px; }
+  .socials { gap: 6px; }
+  .tools :global(.hero-weather) > div, .socials a { border-radius: 10px; }
+  .socials svg { width: 22px; height: 22px; }
   .socials a { width: 42px; height: 42px; }
   .search { grid-template-columns: 1fr 1fr; }
   .search :global(.stay-date) { position: relative; padding: 14px 12px; min-height: 90px; gap: 8px; }
