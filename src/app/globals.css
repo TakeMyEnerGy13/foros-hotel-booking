@@ -980,27 +980,16 @@ a {
   justify-content: space-between;
   gap: 10px;
 }
-.cal-instruction, .cal-month, .calendar-grid {
+.cal-conflict, .cal-month, .calendar-grid {
   max-width: 28rem;
   margin-inline: auto;
 }
-.cal-instruction {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-block: 10px 18px;
+.cal-conflict {
+  margin-top: 10px;
   font-size: 14px;
   line-height: 1.4;
   color: var(--muted);
 }
-.cal-instruction button {
-  flex: none;
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.cal-instruction button:disabled { opacity: .45; }
 .cal-month strong {
   font-weight: 500;
 }

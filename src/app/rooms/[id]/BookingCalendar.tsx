@@ -48,15 +48,16 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
   const [success, setSuccess] = useState(false)
 
   const isBooked = (day: string) => bookings.some((b) => b.checkIn <= day && day < b.checkOut)
-  function clearSelection() {
-    setSelection(undefined)
-    setCrossesBooking(false)
-    setError('')
-  }
+  const isSelected = (day: string) => checkIn <= day && day < checkOut
 
   const handleDayClick = (day: string) => {
     if (day < today || isBooked(day)) return
     setError('')
+    if (isSelected(day)) {
+      setSelection(undefined)
+      setCrossesBooking(false)
+      return
+    }
     const anchor = selection?.anchor ?? day
     const stay = stayForNights(anchor, day, bookings)
     setCrossesBooking(!stay)
@@ -133,13 +134,6 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       aria-label={ru ? 'Календарь бронирования' : 'Booking calendar'}
     >
       <h2>{ru ? 'Забронировать номер' : 'Book your stay'}</h2>
-      <div className="cal-instruction">
-        <p role="status">{crossesBooking
-          ? (ru ? 'В этом периоде есть занятые ночи. Выберите другой период.' : 'This stay includes booked nights. Choose a different period.')
-          : (ru ? 'Выберите первую и последнюю ночь проживания.' : 'Select the first and last nights of your stay.')}
-        </p>
-        <button type="button" disabled={!selection || loading} onClick={clearSelection}>{ru ? 'Сбросить' : 'Clear'}</button>
-      </div>
       <div className="cal-month">
         <button
           type="button"
@@ -169,7 +163,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
           if (!date) return <span key={'blank-' + i} />
           const ds = calendarDay(date)
           const booked = isBooked(ds)
-          const selected = !booked && checkIn <= ds && ds < checkOut
+          const selected = !booked && isSelected(ds)
           const past = ds < today
           return (
             <button
@@ -194,6 +188,11 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
           )
         })}
       </div>
+      {crossesBooking && (
+        <p className="cal-conflict" role="alert">
+          {ru ? 'В этом периоде есть занятые ночи. Выберите другой период.' : 'This stay includes booked nights. Choose a different period.'}
+        </p>
+      )}
       <form
         className="guest-form"
         onSubmit={(e) => {
