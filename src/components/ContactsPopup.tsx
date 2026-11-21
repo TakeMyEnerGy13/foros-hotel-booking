@@ -5,12 +5,6 @@ import { createPortal } from 'react-dom'
 
 export default function ContactsPopup({ locale }: { locale: string }) {
   const [open, setOpen] = useState(false)
-  const cardStyle = {
-    background: 'rgba(255, 255, 255, 0.06)',
-    border: '1px solid rgba(255, 255, 255, 0.10)',
-    borderRadius: '16px',
-  }
-
   const modal = open ? createPortal(
     <div
       style={{position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'}}
@@ -18,11 +12,12 @@ export default function ContactsPopup({ locale }: { locale: string }) {
     >
       <div style={{position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(10px)'}} />
       <div
+        className="contacts-popup"
         onClick={(e) => e.stopPropagation()}
         style={{position: 'relative', width: '100%', maxWidth: '480px', color: 'white', zIndex: 10, background: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '28px', boxShadow: '0 24px 80px rgba(0,0,0,0.6)'}}
       >
-        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '28px 32px', borderBottom: '1px solid rgba(255,255,255,0.08)'}}>
-          <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
+        <div className="contacts-popup-header">
+          <div className="contacts-popup-identity">
             <img src="/logo.png" alt="logo" style={{width: '56px', height: '56px'}} />
             <div>
               <h2 style={{fontFamily: "'DM Serif Display', serif", fontSize: '24px', fontWeight: 'bold', margin: 0}}>Берег Радости</h2>
@@ -31,8 +26,8 @@ export default function ContactsPopup({ locale }: { locale: string }) {
           </div>
           <button onClick={() => setOpen(false)} style={{width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.5)', fontSize: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>x</button>
         </div>
-        <div style={{padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '12px'}}>
-          <a href="tel:+79780000000" style={{...cardStyle, display: 'flex', alignItems: 'center', gap: '16px', padding: '18px 20px', textDecoration: 'none'}}>
+        <div className="contacts-popup-body">
+          <a href="tel:+79780000000" className="contacts-popup-phone">
             <div style={{width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0}}>📞</div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '2px'}}>
               <div style={{fontFamily: "'DM Serif Display', serif", fontSize: '18px', color: 'white'}}>Ольга</div>
