@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import styles from './AdminAppearance.module.css'
 import { calendarDay } from '@/lib/stay'
+import useVisibleRefresh from '@/components/useVisibleRefresh'
 
 interface Booking {
   id: number
@@ -59,27 +60,41 @@ export default function AdminCalendarClient() {
   const [loading, setLoading] = useState(false)
 
   const [error, setError] = useState('')
-  const loadData = useCallback(async () => {
+  const [loadError, setLoadError] = useState('')
+  const request = useRef<AbortController | null>(null)
+  const loadData = useCallback(async (afterEdit = false) => {
+    if (request.current && !afterEdit) return
+    request.current?.abort()
+    const controller = new AbortController()
+    request.current = controller
+    const options = { signal: controller.signal, cache: 'no-store' as const }
     try {
       const [roomsResponse, bookingsResponse] = await Promise.all([
-        fetch('/api/rooms'),
-        fetch('/api/admin/bookings'),
+        fetch('/api/rooms', options),
+        fetch('/api/admin/bookings', options),
       ])
       if (bookingsResponse.status === 401) {
         window.location.replace('/admin-login')
         return
       }
       if (!roomsResponse.ok || !bookingsResponse.ok) throw new Error()
-      setRooms(await roomsResponse.json())
-      setBookings(await bookingsResponse.json())
+      const [rooms, bookings] = await Promise.all([roomsResponse.json(), bookingsResponse.json()])
+      if (controller.signal.aborted) return
+      setRooms(rooms)
+      setBookings(bookings)
+      setLoadError('')
     } catch {
-      setError('Не удалось загрузить календарь')
+      if (!controller.signal.aborted) setLoadError('Не удалось обновить календарь')
+    } finally {
+      if (request.current === controller) request.current = null
     }
   }, [])
 
   useEffect(() => {
     void loadData()
+    return () => { request.current?.abort(); request.current = null }
   }, [loadData])
+  useVisibleRefresh(loadData)
 
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
@@ -91,7 +106,6 @@ export default function AdminCalendarClient() {
         b.roomId === roomId &&
         b.status !== 'cancelled' &&
         b.status !== 'expired' &&
-        (!b.holdExpiresAt || Date.parse(b.holdExpiresAt) > now.getTime()) &&
         key >= b.checkIn.slice(0, 10) &&
         key < b.checkOut.slice(0, 10)
     )
@@ -151,7 +165,7 @@ export default function AdminCalendarClient() {
         return
       }
       setShowModal(false)
-      await loadData()
+      await loadData(true)
     } catch {
       setError('Не удалось связаться с сервером')
     } finally {
@@ -265,7 +279,7 @@ export default function AdminCalendarClient() {
         </table>
       </div>
 
-      {error && !showModal && <p role="alert" className="px-8 text-red-300">{error}</p>}
+      {loadError && <p role="alert" className="px-8 text-red-300">{loadError}</p>}
       {showModal && (
         <BookingDialog onClose={() => setShowModal(false)}>
           <form onSubmit={event => { event.preventDefault(); void submitChange(editBooking ? 'PUT' : 'POST') }}>

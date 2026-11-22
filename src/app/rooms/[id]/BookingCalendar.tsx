@@ -1,9 +1,11 @@
 'use client'
-import { useState, useTransition } from 'react'
+import { useCallback, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { calendarDay, stayForNights, type Stay } from '@/lib/stay'
-import BookingConfirmation, { type GuestReceipt } from './BookingConfirmation'
+import BookingConfirmation from './BookingConfirmation'
+import type { GuestReceipt } from '@/lib/guest-receipts'
+import useVisibleRefresh from '@/components/useVisibleRefresh'
 import GuestPhoneInput from './GuestPhoneInput'
 
 interface Props {
@@ -14,6 +16,7 @@ interface Props {
   initialStay?: Stay
   price: number
   bookings: Stay[]
+  receipts: GuestReceipt[]
 }
 
 const MONTHS_RU = [
@@ -32,7 +35,7 @@ const MONTHS_RU = [
 ]
 const DAYS_RU = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
-export default function BookingCalendar({ roomId, today, locale, price, bookings, initialDay, initialStay }: Props) {
+export default function BookingCalendar({ roomId, today, locale, price, bookings, receipts, initialDay, initialStay }: Props) {
   const ru = locale !== 'en'
   const router = useRouter()
   const [refreshing, startRefresh] = useTransition()
@@ -49,7 +52,13 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
   const [guestPhone, setGuestPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [receipt, setReceipt] = useState<GuestReceipt>()
+  const [openReceiptId, setOpenReceiptId] = useState<number>()
+  const [justCreated, setJustCreated] = useState<GuestReceipt>()
+  const restored = justCreated && receipts.some(receipt => receipt.id === justCreated.id)
+  if (restored) setJustCreated(undefined)
+  const visibleReceipts = justCreated && !restored ? [justCreated, ...receipts] : receipts
+  const refreshStatus = useCallback(() => router.refresh(), [router])
+  useVisibleRefresh(refreshStatus, visibleReceipts.length > 0)
 
   const isBooked = (day: string) => bookings.some((b) => b.checkIn <= day && day < b.checkOut)
   const isSelected = (day: string) => checkIn <= day && day < checkOut
@@ -108,8 +117,13 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       } else if (!res.ok) {
         setError(data.error || 'Ошибка при бронировании')
       } else {
-        setReceipt({ holdExpiresAt: data.holdExpiresAt, checkIn, checkOut })
-        router.refresh()
+        setJustCreated(data)
+        setOpenReceiptId(data.id)
+        setSelection(undefined)
+        setGuestName('')
+        setGuestEmail('')
+        setGuestPhone('')
+        refreshStatus()
       }
     } catch {
       setError(ru ? 'Ошибка соединения' : 'Could not connect')
@@ -117,8 +131,6 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       setLoading(false)
     }
   }
-
-  if (receipt) return <BookingConfirmation receipt={receipt} ru={ru} />
 
   const monthName = ru ? MONTHS_RU[month] : viewDate.toLocaleString('en-GB', { month: 'long' })
   const weekdays = ru ? DAYS_RU : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
@@ -128,6 +140,10 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       id="booking"
       aria-label={ru ? 'Календарь бронирования' : 'Booking calendar'}
     >
+      {visibleReceipts.map(receipt => (
+        <BookingConfirmation key={receipt.id} receipt={receipt} ru={ru} autoOpen={openReceiptId === receipt.id}
+          onClose={() => setOpenReceiptId(undefined)} refresh={refreshStatus} />
+      ))}
       <h2>{ru ? 'Забронировать номер' : 'Book your stay'}</h2>
       <div className="cal-month">
         <button

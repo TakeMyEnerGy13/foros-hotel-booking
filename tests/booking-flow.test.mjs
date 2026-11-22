@@ -37,6 +37,34 @@ test('local hotel booking flow', async t => {
     const cookie = login.headers.get('set-cookie').split(';')[0]
     let bookingId
 
+    await t.test('the issuing browser can recover its receipts and sees current status and dates', async () => {
+      const payload = stay(17, 18)
+      const response = await request('/api/bookings', 'POST', payload)
+      assert.equal(response.status, 200)
+      const key = response.headers.get('set-cookie')
+      assert.match(key, /HttpOnly/i)
+      const receiptCookie = key.split(';')[0]
+      const { id } = await response.json()
+      const page = async owner => (await request(roomUrl, 'GET', undefined, owner)).text()
+      const other = await request('/api/bookings', 'POST', stay(18, 19))
+      assert.equal(other.status, 200)
+      const secondCookie = other.headers.get('set-cookie').split(';')[0]
+      assert.ok(!(await page()).includes('Детали заявки'))
+      const single = await page(receiptCookie)
+      assert.ok(single.includes('Даты за вами'))
+      assert.ok(!single.includes(receiptCookie.split('=')[1]))
+      const combined = await page(receiptCookie + '; ' + secondCookie)
+      assert.equal((combined.match(/>Детали заявки<\/button>/g) ?? []).length, 2)
+      const path = admin + '/' + id
+      assert.equal((await request(path, 'PUT', { ...payload, status: 'confirmed' }, cookie)).status, 200)
+      await db.booking.update({ where: { id }, data: { createdAt: new Date(Date.now() - 4 * 3600000) } })
+      assert.ok((await page(receiptCookie)).includes('Бронь подтверждена'))
+      assert.equal((await request(path, 'PUT', { ...payload, status: 'cancelled' }, cookie)).status, 200)
+      assert.ok((await page(receiptCookie)).includes('Бронь отменена'))
+      await db.booking.update({ where: { id: (await other.json()).id }, data: { createdAt: new Date(Date.now() - 4 * 3600000) } })
+      assert.ok((await page(secondCookie)).includes('Время резерва истекло'))
+    })
+
     await t.test('catalog handles ambiguous date links and preserves an unambiguous date', async () => {
       for (const [duplicate, single] of [['checkIn', 'checkOut'], ['checkOut', 'checkIn']]) {
         const query = new URLSearchParams([[duplicate, date(1)], [duplicate, date(2)], [single, date(3)]])
