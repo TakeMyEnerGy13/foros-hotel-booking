@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:bookings": "node --env-file=.env.local --test tests/booking-flow.test.mjs tests/stay-date-input.test.mjs",
-    "test:seed": "node --env-file=.env.local --test tests/seed.test.mjs",
-    "seed": "node --experimental-strip-types prisma/seed.ts"
+    "test:bookings": "node --env-file-if-exists=.env --env-file-if-exists=.env.local --test tests/booking-flow.test.mjs tests/stay-date-input.test.mjs",
+    "test:seed": "node --env-file-if-exists=.env --env-file-if-exists=.env.local --test tests/seed.test.mjs",
+    "seed": "node --env-file-if-exists=.env --env-file-if-exists=.env.local --experimental-strip-types prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
