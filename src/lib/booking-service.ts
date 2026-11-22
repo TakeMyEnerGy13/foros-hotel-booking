@@ -4,6 +4,7 @@ import { prisma } from './prisma'
 import { hotelToday, overlapFilter, validStay } from './stay'
 import { activeBookings, bookingReceipt } from './booking-hold'
 import { normalizeGuestPhone } from './guest-phone'
+import { createGuestReceiptKey, guestBookingResponse } from './guest-receipts'
 
 const id = z.number().int().positive().max(2147483647)
 const fields = z.object({
@@ -64,6 +65,7 @@ export async function saveBooking(request: Request, admin: boolean, bookingId?: 
       throw new BookingError(400, 'Укажите допустимые даты заезда и выезда')
     }
     const targetId = bookingId === undefined ? undefined : validId(bookingId)
+    const receiptKey = admin ? undefined : createGuestReceiptKey()
     const saved = await prisma.$transaction(async tx => {
       const old = targetId === undefined ? null : await lockedBooking(tx, targetId)
       if (targetId !== undefined && !old) throw new BookingError(404, 'Бронь не найдена')
@@ -88,10 +90,9 @@ export async function saveBooking(request: Request, admin: boolean, bookingId?: 
         ...('notes' in data && { notes: data.notes }),
       }
       if (targetId !== undefined) return tx.booking.update({ where: { id: targetId }, data: values })
-      return tx.booking.create({ data: { ...values, roomId, createdAt: new Date() } })
+      return tx.booking.create({ data: { ...values, roomId, guestReceiptHash: receiptKey?.hash, createdAt: new Date() } })
     }, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted })
-    const receipt = bookingReceipt(saved)
-    return Response.json(admin ? receipt : { id: saved.id, status: receipt.status, holdExpiresAt: receipt.holdExpiresAt })
+    return receiptKey ? guestBookingResponse(saved, receiptKey.token) : Response.json(bookingReceipt(saved))
   } catch (error) {
     if (error instanceof BookingError) return Response.json({ error: error.message }, { status: error.status })
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {

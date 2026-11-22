@@ -32,7 +32,10 @@ model Booking {
   checkIn   DateTime
   checkOut  DateTime
   status    String   @default("pending")
+  guestReceiptHash String?
   createdAt DateTime @default(now())
+
+  @@index([roomId, guestReceiptHash])
 }
 
 model Admin {

@@ -1013,7 +1013,9 @@ a {
   margin: 12px 0 25px;
 }
 .booking-panel > h2:first-child { margin-top: 0; }
-.booking-receipt > button { margin-top: 18px; }
+.booking-receipt { margin-bottom: 28px; }
+.booking-receipt > h3 { margin: 0 0 6px; font-size: 22px; }
+.booking-receipt > button { margin-top: 12px; }
 .hold-dialog {
   position: fixed;
   inset: 0;

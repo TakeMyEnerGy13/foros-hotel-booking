@@ -9,6 +9,7 @@ import HotelFooter from '@/components/HotelFooter'
 import { roomPhotos } from '@/lib/hotel-photos'
 import RoomsNav from '@/components/RoomsNav'
 import { activeBookings } from '@/lib/booking-hold'
+import { roomGuestReceipts } from '@/lib/guest-receipts'
 
 export default async function RoomPage({
   params,
@@ -38,6 +39,7 @@ export default async function RoomPage({
     checkOut: b.checkOut.toISOString().slice(0, 10),
   }))
   const today = hotelToday()
+  const receipts = await roomGuestReceipts(room.id, cookieStore.getAll(), today, locale)
   const hasUpcomingStay = validStay(checkIn, checkOut) && checkIn >= today
   const initialStay =
     hasUpcomingStay && !bookings.some((b) => overlaps(b, requested))
@@ -96,6 +98,7 @@ export default async function RoomPage({
             initialStay={initialStay}
             price={room.price}
             bookings={bookings}
+            receipts={receipts}
           />
           {allRoomsLink}
         </div>
