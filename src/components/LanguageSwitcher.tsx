@@ -1,15 +1,17 @@
 'use client'
+import { showcase, siteBase } from '@/lib/site-path'
 import { useRouter } from 'next/navigation'
 
 function saveLanguage(lang: string) {
-  document.cookie = 'locale=' + lang + ';path=/;max-age=31536000;SameSite=Lax'
+  document.cookie = 'locale=' + lang + ';path=' + (siteBase || '/') + ';max-age=31536000;SameSite=Lax'
 }
 
 export default function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
   const router = useRouter()
   function select(lang: string) {
     saveLanguage(lang)
-    router.refresh()
+    if (showcase) window.location.reload()
+    else router.refresh()
   }
   return (
     <div className="languages" aria-label="RU / EN">

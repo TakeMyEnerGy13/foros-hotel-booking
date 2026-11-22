@@ -1,0 +1,13 @@
+.demo-stay {
+  display: grid;
+  gap: .65rem;
+  padding-top: 1.5rem;
+}
+
+.demo-stay strong {
+  font-size: 1.15rem;
+}
+
+.demo-stay p {
+  font-size: .9rem;
+}

@@ -1,3 +1,5 @@
+import { sitePath } from './site-path'
+
 const localPhotos = new Set([
   'photo-1473116763249-2faaef81ccda',
   'photo-1500534314209-a25ddb2bd429',
@@ -31,9 +33,9 @@ export function roomPhotos(urls: string[]) {
       ].includes(id)
     )
       continue
-    photos.push(id && localPhotos.has(id) ? '/photos/' + id + '.webp' : url)
+    photos.push(sitePath(id && localPhotos.has(id) ? '/photos/' + id + '.webp' : url))
   }
-  return photos.length ? photos : ['/Main.png']
+  return photos.length ? photos : [sitePath('/Main.png')]
 }
 
 export const coastPhotos = [
@@ -51,4 +53,4 @@ export const coastPhotos = [
     ru: 'Море на закате',
     en: 'Sunset on the water',
   },
-]
+].map(photo => ({ ...photo, src: sitePath(photo.src) }))

@@ -1,7 +1,7 @@
-import Link from 'next/link'
+import Link from './SiteLink'
 import { roomPhotos } from '@/lib/hotel-photos'
 
-type Room = {
+export type TileRoom = {
   id: number
   name: string
   nameEn: string
@@ -15,7 +15,7 @@ export default function RoomTile({
   query = '',
   unavailable = false,
 }: {
-  room: Room
+  room: TileRoom
   locale: string
   query?: string
   unavailable?: boolean
