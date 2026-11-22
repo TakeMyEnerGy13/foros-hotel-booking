@@ -1,13 +1,9 @@
-import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { datesFromQuery, hotelToday, overlaps, validStay, type StayQuery } from '@/lib/stay'
 import { cookies } from 'next/headers'
 import BookingCalendar from './BookingCalendar'
-import { PhotoStage } from '@/components/Gallery'
-import HotelFooter from '@/components/HotelFooter'
-import { roomPhotos } from '@/lib/hotel-photos'
-import RoomsNav from '@/components/RoomsNav'
+import RoomDetail from '@/components/RoomDetail'
 import { activeBookings } from '@/lib/booking-hold'
 import { roomGuestReceipts } from '@/lib/guest-receipts'
 
@@ -46,64 +42,19 @@ export default async function RoomPage({
       ? requested
       : undefined
 
-  const ru = locale !== 'en'
-  const name = ru ? room.name : room.nameEn
-  const catalogHref = validStay(checkIn, checkOut) ? '/rooms?' + new URLSearchParams({ checkIn, checkOut }) : '/rooms'
-  const allRoomsLink = (
-    <Link className="all-rooms-link" href={catalogHref}>
-      <span aria-hidden="true">←</span> {ru ? 'Все номера' : 'All rooms'}
-    </Link>
-  )
-  const photos = roomPhotos(room.images.length ? room.images : [room.imageUrl]).map((src, i) => ({
-    src,
-    caption: name + ' · ' + (i + 1),
-  }))
   return (
-    <div id="top" className="hotel">
-      <RoomsNav locale={locale} booking="#booking" />
-      <main>
-        <div className="room-hero">
-          {allRoomsLink}
-          <PhotoStage photos={photos} title={name} locale={locale} />
-        </div>
-        <div className="room-spread editorial">
-          <section className="room-story">
-            <h2>{ru ? 'О номере' : 'About the room'}</h2>
-            <p>{ru ? room.description : room.descriptionEn}</p>
-            <dl className="room-facts">
-              <div>
-                <dt>{ru ? 'Цена за ночь' : 'Per night'}</dt>
-                <dd>{room.price.toLocaleString(ru ? 'ru-RU' : 'en-GB')} ₽</dd>
-              </div>
-              <div>
-                <dt>{ru ? 'Вместимость' : 'Capacity'}</dt>
-                <dd>{ru ? 'До ' + room.capacity + ' гостей' : 'Up to ' + room.capacity + ' guests'}</dd>
-              </div>
-              <div>
-                <dt>Wi-Fi</dt>
-                <dd>{ru ? 'Бесплатно' : 'Included'}</dd>
-              </div>
-              <div>
-                <dt>{ru ? 'Завтрак' : 'Breakfast'}</dt>
-                <dd>{ru ? 'Включён' : 'Included'}</dd>
-              </div>
-            </dl>
-          </section>
-          <BookingCalendar
-            key={[room.id, checkIn, checkOut].join('/')}
-            roomId={room.id}
-            today={today}
-            locale={locale}
-            initialDay={hasUpcomingStay ? checkIn : today}
-            initialStay={initialStay}
-            price={room.price}
-            bookings={bookings}
-            receipts={receipts}
-          />
-          {allRoomsLink}
-        </div>
-      </main>
-      <HotelFooter locale={locale} />
-    </div>
+    <RoomDetail room={room} requested={requested} locale={locale} calendar={
+      <BookingCalendar
+        key={[room.id, checkIn, checkOut].join('/')}
+        roomId={room.id}
+        today={today}
+        locale={locale}
+        initialDay={hasUpcomingStay ? checkIn : today}
+        initialStay={initialStay}
+        price={room.price}
+        bookings={bookings}
+        receipts={receipts}
+      />
+    } />
   )
 }

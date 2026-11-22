@@ -1,4 +1,5 @@
 'use client'
+import { sitePath } from '@/lib/site-path'
 import { useRef } from 'react'
 import ContactServices from './ContactServices'
 import { bookingContact } from '@/lib/booking-contact'
@@ -29,7 +30,7 @@ export default function ContactsPopup({ locale }: { locale: string }) {
       >
         <div className="contacts-popup-header">
           <div className="contacts-popup-identity">
-            <img src="/logo.png" alt="logo" style={{width: '56px', height: '56px'}} />
+            <img src={sitePath('/logo.png')} alt="logo" style={{width: '56px', height: '56px'}} />
             <div>
               <h2 style={{fontFamily: "'DM Serif Display', serif", fontSize: '24px', fontWeight: 'bold', margin: 0}}>Берег Радости</h2>
               <p style={{fontFamily: "'Inter', sans-serif", fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0 0'}}>{locale === 'ru' ? 'Форос · Крым · Южный берег' : 'Foros · Crimea · Southern Coast'}</p>

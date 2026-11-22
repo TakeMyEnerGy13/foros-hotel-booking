@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'DM Serif Display';
-  src: url('/fonts/dm-serif-display.ttf') format('truetype');
+  src: url('../../public/fonts/dm-serif-display.ttf') format('truetype');
   font-weight: 400;
   font-display: swap;
 }
@@ -16,7 +16,7 @@
   color: white;
   font: 400 16px/1.5 Inter, sans-serif;
   background: linear-gradient(to bottom, rgb(0 0 0 / 40%), rgb(0 0 0 / 20%), rgb(0 0 0 / 70%)),
-    url('/photos/photo-1507525428034-b723cf961d3e.webp') center / cover;
+    url('../../public/photos/photo-1507525428034-b723cf961d3e.webp') center / cover;
 }
 
 .nav, .tools {

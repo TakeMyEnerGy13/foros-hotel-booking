@@ -2,6 +2,7 @@
 import { useCallback, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 
+import { showcase } from '@/lib/site-path'
 import { calendarDay, stayForNights, type Stay } from '@/lib/stay'
 import BookingConfirmation from './BookingConfirmation'
 import type { GuestReceipt } from '@/lib/guest-receipts'
@@ -96,6 +97,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
       : 0
 
   const handleSubmit = async () => {
+    if (showcase) return
     setError('')
     if (crossesBooking || !checkIn || !checkOut || !guestName || !guestEmail || !guestPhone) {
       setError(ru ? 'Заполните все поля и выберите даты' : 'Enter your details and select your dates')
@@ -144,7 +146,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
         <BookingConfirmation key={receipt.id} receipt={receipt} ru={ru} autoOpen={openReceiptId === receipt.id}
           onClose={() => setOpenReceiptId(undefined)} refresh={refreshStatus} />
       ))}
-      <h2>{ru ? 'Забронировать номер' : 'Book your stay'}</h2>
+      <h2>{showcase ? (ru ? 'Календарь номера' : 'Room calendar') : (ru ? 'Забронировать номер' : 'Book your stay')}</h2>
       <div className="cal-month">
         <button
           type="button"
@@ -204,7 +206,14 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
           {ru ? 'В этом периоде есть занятые ночи. Выберите другой период.' : 'This stay includes booked nights. Choose a different period.'}
         </p>
       )}
-      <form
+      {showcase ? (
+        <div className="demo-stay" aria-live="polite">
+          {nights > 0 && !crossesBooking && (
+            <strong>{ru ? 'Стоимость проживания' : 'Stay total'} · {(nights * price).toLocaleString(ru ? 'ru-RU' : 'en-GB')} ₽</strong>
+          )}
+          <p>{ru ? 'Демонстрационный календарь. Выбор дат не создаёт бронь.' : 'Demo calendar. Selecting dates does not make a reservation.'}</p>
+        </div>
+      ) : <form
         className="guest-form"
         onSubmit={(e) => {
           e.preventDefault()
@@ -248,7 +257,7 @@ export default function BookingCalendar({ roomId, today, locale, price, bookings
                 ? 'Выберите даты'
                 : 'Select dates'}
         </button>
-      </form>
+      </form>}
     </section>
   )
 }

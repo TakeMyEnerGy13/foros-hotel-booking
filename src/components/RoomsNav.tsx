@@ -1,4 +1,5 @@
-import Link from 'next/link'
+import { showcase } from '@/lib/site-path'
+import Link from './SiteLink'
 import LanguageSwitcher from './LanguageSwitcher'
 
 export default function RoomsNav({ locale, booking = '/#stay' }: { locale: string; booking?: string }) {
@@ -16,7 +17,7 @@ export default function RoomsNav({ locale, booking = '/#stay' }: { locale: strin
       <div className="nav-end">
         <LanguageSwitcher currentLocale={locale} />
         <Link className="pill header-book" href={booking}>
-          {ru ? 'Забронировать' : 'Book a stay'} <span aria-hidden="true">↗</span>
+          {showcase ? (ru ? 'Выбрать даты' : 'Select dates') : (ru ? 'Забронировать' : 'Book a stay')} <span aria-hidden="true">↗</span>
         </Link>
       </div>
     </header>

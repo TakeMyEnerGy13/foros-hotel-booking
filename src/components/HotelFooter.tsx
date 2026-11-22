@@ -1,3 +1,4 @@
+import { sitePath } from '@/lib/site-path'
 import Image from 'next/image'
 import ContactServices from './ContactServices'
 import FooterWordmark from './FooterWordmark'
@@ -21,7 +22,7 @@ export default function HotelFooter({ locale }: { locale: string }) {
           </address>
           <ContactServices locale={locale} />
         </div>
-        <Image className="home-footer-mark" src="/logo.png" width={330} height={319} alt="" />
+        <Image className="home-footer-mark" src={sitePath('/logo.png')} width={330} height={319} alt="" />
         <figure className="footer-map">
           <iframe
             title={ru ? 'Берег Радости в Форосе на карте' : 'Shore of Joy in Foros on the map'}
