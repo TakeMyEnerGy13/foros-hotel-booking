@@ -4,6 +4,18 @@ import test from 'node:test'
 
 const edition = new URL('../editions/riviera/', import.meta.url)
 
+test('editorial headings and room names are editable text with a bundled display font', async () => {
+  const html = await readFile(new URL('index.html', edition), 'utf8')
+  const labels = [...html.matchAll(/<(h[1-3]|summary)\b[^>]*>([\s\S]*?)<\/\1>/g)]
+  assert.ok(labels.length >= 15)
+  for (const [, , label] of labels) {
+    assert.doesNotMatch(label, /<(?:img|svg|canvas)\b/)
+    assert.match(label.replace(/<[^>]+>/g, ''), /[А-Яа-яЁё]/)
+  }
+  const font = await readFile(new URL('assets/fonts/dance-partner.woff2', edition))
+  assert.equal(font.toString('ascii', 0, 4), 'wOF2')
+})
+
 test('the independent preview resolves every local link within its own directory', async () => {
   const html = await readFile(new URL('index.html', edition), 'utf8')
   const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]))
