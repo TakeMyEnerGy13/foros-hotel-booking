@@ -8,11 +8,33 @@ export function PhotoStage({ photos, title, locale }: { photos: Photo[]; title: 
   const ru = locale !== 'en'
   const [current, setCurrent] = useState(0)
   const stage = useRef<HTMLElement>(null)
+  const label = useRef<HTMLSpanElement>(null)
+  const thumbnails = useRef<HTMLDivElement>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const active = photos[current] ?? photos[0]
   const move = useCallback((step: number) => {
     setCurrent((index) => (index + step + photos.length) % photos.length)
   }, [photos.length])
+
+  useEffect(() => {
+    const frame = stage.current
+    const text = label.current
+    if (!frame || !text) return
+    const strip = thumbnails.current
+    const updateTitle = () => {
+      const bounds = frame.getBoundingClientRect()
+      const titleBounds = text.getBoundingClientRect()
+      const inset = titleBounds.left - bounds.left
+      const rightEdge = strip?.getBoundingClientRect().left ?? bounds.right
+      text.toggleAttribute('data-fits', titleBounds.right + inset <= rightEdge)
+    }
+    const observer = new ResizeObserver(updateTitle)
+    observer.observe(frame)
+    observer.observe(text)
+    if (strip) observer.observe(strip)
+    updateTitle()
+    return () => observer.disconnect()
+  }, [title, photos.length])
 
   useEffect(() => {
     if (photos.length < 2) return
@@ -46,9 +68,8 @@ export function PhotoStage({ photos, title, locale }: { photos: Photo[]; title: 
         >
           ⤢
         </button>
-        <div className="stage-title">
-          <h1>{title}</h1>
-        </div>
+        <h1 className="sr-only">{title}</h1>
+        <span ref={label} className="stage-title" aria-hidden="true">{title}</span>
         {photos.length > 1 && (
           <>
             <button
@@ -67,7 +88,7 @@ export function PhotoStage({ photos, title, locale }: { photos: Photo[]; title: 
             >
               →
             </button>
-            <div className="stage-thumbs" role="group" aria-label={ru ? 'Фотографии' : 'Photographs'}>
+            <div ref={thumbnails} className="stage-thumbs" role="group" aria-label={ru ? 'Фотографии' : 'Photographs'}>
               {photos.map((photo, index) => (
                 <button
                   key={photo.src}
