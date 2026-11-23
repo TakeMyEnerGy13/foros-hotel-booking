@@ -60,7 +60,8 @@ nav a, nav button { display: flex; align-items: center; min-height: max(44px,3.1
 nav a:hover, nav button:hover { filter: brightness(.75); }
 .book { border: max(1px,.18cqw) solid var(--orange); display: inline-flex; align-items: center; justify-content: center; font: 600 3.33cqw/1.1 var(--brand-type); text-transform: lowercase; transition: background-color .18s ease; }
 .book:hover { background: #ff8a0024; }
-.mast .book { font-family: inherit; font-weight: 400; text-transform: none; }
+.mast .book { font-family: inherit; font-weight: 400; text-transform: none; border-radius: clamp(10px,1.33cqw,24px); }
+.mast .header-book { border-radius: clamp(8px,.667cqw,12px); }
 .header-book { top: 1.8cqw; right: 3.333%; width: max(10rem,16.67%); height: max(44px,3.14cqw); border-width: max(1px,.13cqw); font-size: clamp(.875rem,1.33cqw,1.5rem); }
 .eyebrow { position: absolute; top: 9.8cqw; left: 3.333%; font-size: clamp(.75rem,1.2cqw,1.35rem); line-height: 1.33; }
 .mast h1, .section h2, .experiences h2, .room summary, .experience h3 { font-family: var(--display-type); font-weight: 400; text-transform: uppercase; }
